@@ -4,37 +4,70 @@
 
 ******* PLEASE STAR MY REPO TO SUPPORT MY WORK 🙏 ******
 
-Please follow me 🙏 on [twitter](https://twitter.com/imranhsayed)
-
-## Dashboard Demo
-
-![](demo-dashboard.gif)
-
-## Pagination :video_camera:
-![](pagination.gif)
-
-## Post Listings Demo :video_camera:
-
-![](render-posts.gif)
-
-## [Live Demo](https://react-with-wordpress.netlify.com/)
-
 ## Features
 
 1. CRUD operation with WordPress REST API
 2. Authentication with JWT ( Login Logout )
-3. Accessing public and private routes 
+3. Accessing public and private routes
 4. Handing WordPress REST API custom end points.
 5. Creating Dashboard with React for CRUD operation.
 6. Pagination
 
 ## Installation
 
-1. Clone this repo in `git clone https://github.com/imranhsayed/react-with-wordpress`
+1. Clone this repo in `git clone https://github.com/nmantia12/react-wordpress`
 
 2. `git checkout branchname`
 
 3. Run `npm install`
+
+**During development**
+
+Starts webpack dev server at `localhost:8080`
+
+```bash
+npm run dev
+```
+
+**Production**
+
+Creates an `index.html` and JavaScript file in `build` directory.
+
+```bash
+npm run prod
+```
+
+**Client Config**
+Put your site URL name in the `client-config.js`;
+const siteUrl = 'https://yourWordPressSite.com';
+
+**Linting & Formatting**
+
+The following command will fix most errors and show and remaining ones which cannot be fixed automatically.
+
+```bash
+npm run eslint:fix
+```
+
+We follow the stylelint configuration used in WordPress Gutenberg, run the following command to lint and fix styles.
+
+```bash
+npm run stylelint:fix
+```
+
+Format code with prettier
+
+```bash
+npm run format-js
+```
+
+**precommit**
+
+You should run precommit to check for any eslint, stylint errors/warnings and to ensure all tests are passing before making a PR ready for review.
+
+```bash
+npm run precommit
+```
 
 ## Add [REST API ENDPOINTS WordPress Plugin](https://github.com/imranhsayed/rest-api-endpoints)
 
@@ -52,7 +85,7 @@ const clientConfig = {
 };
 
 export default clientConfig;
-``` 
+```
 
 ## Branches
 
@@ -76,12 +109,12 @@ i. Add the last three lines in your WordPress `.htaccess` file as shown:
    RewriteCond %{REQUEST_FILENAME} !-f
    RewriteCond %{REQUEST_FILENAME} !-d
    RewriteRule . /wordpress/index.php [L]
-   
-   
+
+
    RewriteCond %{HTTP:Authorization} ^(.*)
    RewriteRule ^(.*) - [E=HTTP_AUTHORIZATION:%1]
    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
-   
+
    </IfModule>
 ```
 ii. Add the following in your `wp-config.php` Wordpress file. You can choose your own secret key.
@@ -91,9 +124,9 @@ define('JWT_AUTH_SECRET_KEY', '&BZd]N-ghz|hbH`=%~a5z(`mR=n%7#8-Iz@KoqtDhQ6(8h$og
 define('JWT_AUTH_CORS_ENABLE', true);
 ```
 
-iii. Now you can make a request to `/wp-json/jwt-auth/v1/token` REST API provided by the plugin. You need to pass 
+iii. Now you can make a request to `/wp-json/jwt-auth/v1/token` REST API provided by the plugin. You need to pass
 username and password and it returns a user object and token . You can save the token in localstorage and send it in the headers
-of your protected route requests ( e.g. [Create Post](https://developer.wordpress.org/rest-api/reference/posts/#create-a-post) `/wp-json/wp/v2/posts` ) 
+of your protected route requests ( e.g. [Create Post](https://developer.wordpress.org/rest-api/reference/posts/#create-a-post) `/wp-json/wp/v2/posts` )
 
 iiv. So whenever you send a request to WordPress REST API for your protected routes, you send the token received in the headers of
 your request
@@ -108,7 +141,7 @@ your request
 
 This repo also demonstrates how to create posts in React Application by sending request to protected endpoints ( passing the token in the header )
 
-### 2. [jwt-verify-with-node](https://github.com/imranhsayed/react-with-wordpress/tree/jwt-verify-with-node)  
+### 2. [jwt-verify-with-node](https://github.com/imranhsayed/react-with-wordpress/tree/jwt-verify-with-node)
 
 > A React(front end) + Node(back end) application. It uses `jwt.sign()` ( from `jwtwebtoken` npm package ) to generate a token using the username and password
 sent from front end( React ) and returns it as a response, which we then store in localstorage to login the user.
@@ -119,7 +152,7 @@ or errors if any.
 
 > It also has functionality to create post where we make a request from front end along with token( React ) to a node end point.
 The node endpoint verifies the token and then makes a request to WordPress REST API endpoint to create the post and then returns the
-new post id, or error if any.  
+new post id, or error if any.
 
 ## Commands
 

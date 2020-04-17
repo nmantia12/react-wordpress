@@ -1,5 +1,5 @@
 const clientConfig = {
-	siteUrl: 'https://codeytek.com'
+	siteUrl: 'https://gobrandgo.com',
 };
 
 export default clientConfig;

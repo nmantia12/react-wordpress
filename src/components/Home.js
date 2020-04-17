@@ -53,7 +53,7 @@ class Home extends React.Component {
 				{ posts.length ? (
 					<div className="mt-5 posts-container">
 						{ posts.map( post => (
-							<div key={post.id} className="card border-dark mb-3" style={{maxWidth: '50rem'}}>
+							<div key={post.id} className="card border-dark mb-3" style={{maxWidth: '50rem', margin: '0 auto'}}>
 								<div className="card-header">
 									<Link to={`/post/${post.id}`} className="text-secondary font-weight-bold" style={{ textDecoration: 'none' }}>
 										{renderHTML( post.title.rendered )}
