@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 // import * as THREE from 'three';
 import 'three/examples/js/controls/OrbitControls';
-import Clouds from './assets/2_no_clouds_4k.jpg';
-import Elevation from './assets/elev_bump_4k.jpg';
-import Water from './assets/water_4k.png';
-import fairClouds from './assets/fair_clouds_4k.png';
+import Clouds from '../assets/2_no_clouds_4k.jpg';
+import Elevation from '../assets/elev_bump_4k.jpg';
+import Water from '../assets/water_4k.png';
+import fairClouds from '../assets/fair_clouds_4k.png';
 
-class Scene extends Component {
+class Globe extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {};
@@ -182,4 +182,4 @@ class Scene extends Component {
 	}
 }
 
-export default Scene;
+export default Globe;

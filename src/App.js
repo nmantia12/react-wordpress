@@ -1,5 +1,5 @@
 import React from 'react';
-import Scene from './Scene';
+import Ocean from './3d/Ocean';
 import './style.scss';
 import { Router } from '@reach/router';
 import Login from './components/Login';
@@ -31,7 +31,7 @@ class App extends React.Component {
 					</Router>
 				</AppProvider>
 				<div>
-					<Scene />
+					<Ocean />
 				</div>
 			</>
 		);
