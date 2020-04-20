@@ -16,12 +16,11 @@ class Ocean extends Component {
 		this.stop = this.stop.bind( this );
 		this.animate = this.animate.bind( this );
 		this.renderScene = this.renderScene.bind( this );
-		// this.computeBoundingBox = this.computeBoundingBox.bind( this );
 		this.init = this.init.bind( this );
 		this.updateSun = this.updateSun.bind(this);
 		this.destroyContext = this.destroyContext.bind( this );
 		this.onWindowResize = this.onWindowResize.bind( this );
-		window.addEventListener( 'resize', this.onWindowResize, false );
+		window.addEventListener( 'resize', this.onWindowResize );
 	}
 
 	componentDidMount() {
@@ -129,8 +128,6 @@ class Ocean extends Component {
 		this.sphere = sphere;
 		this.scene = scene;
 
-		//
-
 		var controls = new THREE.OrbitControls( camera, renderer.domElement );
 		controls.maxPolarAngle = Math.PI * 0.495;
 		controls.target.set( 0, 10, 0 );
@@ -138,8 +135,6 @@ class Ocean extends Component {
 		controls.maxDistance = 200.0;
 		controls.update();
 		this.controls = controls;
-
-		//
 
 		var stats = new Stats();
 		this.stats = stats;
@@ -179,10 +174,6 @@ class Ocean extends Component {
 
 	}
 
-	// computeBoundingBox() {
-
-	// }
-
 	start() {
 		if ( ! this.frameId ) {
 			this.frameId = requestAnimationFrame( this.animate );
@@ -209,14 +200,15 @@ class Ocean extends Component {
 	}
 
 	onWindowResize() {
-		this.camera.aspect = this.width / this.height;
+		const width = window.innerWidth;
+		const height = window.innerHeight;
+		this.camera.aspect = width / height;
 		this.camera.updateProjectionMatrix();
-		this.renderer.setSize( this.width / this.height );
+		this.renderer.setSize( width, height );
 	}
 
 	componentWillUnmount() {
 		this.stop();
-		this.gui.destroy();
 		this.destroyContext();
 	}
 
@@ -226,6 +218,7 @@ class Ocean extends Component {
 		this.renderer.context = null;
 		this.renderer.domElement = null;
 		this.renderer = null;
+		this.gui.destroy();
 	}
 
 	render() {

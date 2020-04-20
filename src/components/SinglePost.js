@@ -5,6 +5,7 @@ import Moment from "react-moment";
 import Loader from "../loader.gif";
 import axios from "axios";
 import clientConfig from "../client-config";
+import FeaturedImage from "./layouts/FeaturedImage";
 
 class SinglePost extends React.Component {
 
@@ -26,7 +27,7 @@ class SinglePost extends React.Component {
 		const wordPressSiteURL = clientConfig.siteUrl;
 
 		this.setState( { loading: true }, () => {
-			axios.get( `${wordPressSiteURL}/wp-json/wp/v2/posts/${this.props.id}` )
+			axios.get( `${wordPressSiteURL}/wp-json/wp/v2/posts/${this.props.id}?_embed` )
 				.then( res => {
 
 					if ( Object.keys( res.data ).length ) {
@@ -51,6 +52,10 @@ class SinglePost extends React.Component {
 					<div className="mt-5 posts-container">
 						<div key={post.id} className="card border-dark mb-3" style={{maxWidth: '50rem'}}>
 							<div className="card-header">
+
+								{/*Featured Image*/}
+								{ post._embedded['wp:featuredmedia'] && <FeaturedImage image={post._embedded['wp:featuredmedia']['0'] } /> }
+
 								{renderHTML( post.title.rendered )}
 							</div>
 							<div className="card-body">

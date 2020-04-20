@@ -1,16 +1,15 @@
 import React from 'react';
 
 const FeaturedImage = ( props ) => {
-
-	const { img_sizes, img_src, img_srcset }  = props.image;
-	const { title } = props.title;
+	const width = props.image.media_details.sizes.large.width;
+	const height = props.image.media_details.sizes.large.height;
+	const sourceUrl = props.image.source_url;
+	const { title } = props.image.title;
 
 	return (
-		<img width={ img_src[1] } height={ img_src[2] }
-		     src={ img_src[0] }
+		<img width={ width } height={ height }
+		     src={ sourceUrl }
 		     className="attachment-post-thumbnail size-post-thumbnail wp-post-image"
-		     srcSet={ img_srcset ? img_srcset : '' }
-		     sizes={ img_sizes }
 		     alt={ title }
 		/>
 	)

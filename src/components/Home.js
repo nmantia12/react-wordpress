@@ -1,5 +1,7 @@
 import React from 'react';
 import Navbar from "./Navbar";
+// import Slider from "./Slider";
+import FeaturedImage from "./layouts/FeaturedImage";
 import axios from 'axios';
 import Loader from "../loader.gif";
 import renderHTML from 'react-render-html';
@@ -29,7 +31,7 @@ class Home extends React.Component {
 
 		if (this._isMounted) {
 			this.setState( { loading: true }, () => {
-				axios.get( `${wordPressSiteURL}/wp-json/wp/v2/posts/` )
+				axios.get( `${wordPressSiteURL}/wp-json/wp/v2/posts?_embed` )
 					.then( res => {
 						if ( 200 === res.status ) {
 							if ( res.data.length ) {
@@ -61,8 +63,13 @@ class Home extends React.Component {
 					<div className="mt-5 posts-container">
 						{ posts.map( post => (
 							<div key={post.id} className="card border-dark mb-3" style={{maxWidth: '50rem', margin: '0 auto'}}>
+
+								{/*Featured Image*/}
+								{ post._embedded['wp:featuredmedia'] && <Link to={`/post/${post.id}`}><FeaturedImage image={post._embedded['wp:featuredmedia']['0'] } /></Link> }
+
 								<div className="card-header">
-									<Link to={`/post/${post.id}`} className="text-secondary font-weight-bold" style={{ textDecoration: 'none' }}>
+									<Link to={`/post/${post.id}`}className="text-secondary font-weight-bold" style={{ textDecoration: 'none' }}>
+
 										{renderHTML( post.title.rendered )}
 									</Link>
 								</div>
