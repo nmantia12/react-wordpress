@@ -13,7 +13,7 @@ export const Post = ( props ) => {
 			{ post.title ? <Link to={`/post/${ post.id }`} className="post-title">{ post.title }</Link> : '' }
 
 			{/*Featured Image*/}
-			{ post._embedded['wp:featuredmedia'] && <Link to={`/post/${post.id}`}><FeaturedImage image={post._embedded['wp:featuredmedia']['0'] } /></Link> }
+			{/* { post._embedded['wp:featuredmedia'] && <Link to={`/post/${post.id}`}><FeaturedImage image={post._embedded['wp:featuredmedia']['0'] } /></Link> } */}
 
 			{/*Excerpt*/}
 			{ post.title ? <p className="post-excerpt mt-4">{ post.excerpt }</p> : '' }

@@ -34,6 +34,9 @@ const Navbar = () => {
 						<NavLink to="/ocean">Ocean</NavLink>
 					</li>
 					<li className="nav-item">
+						<NavLink to="/globe">Globe</NavLink>
+					</li>
+					<li className="nav-item">
 						<NavLink to="/model">Model Viewer</NavLink>
 					</li>
 					{ isLoggedIn() ? (

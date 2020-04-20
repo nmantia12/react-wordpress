@@ -1,5 +1,6 @@
 import React from 'react';
 import Ocean from './3d/Ocean';
+import Globe from './3d/Globe';
 import ModelViewer from './3d/ModelViewer';
 import './style.scss';
 import { Router } from '@reach/router';
@@ -30,6 +31,7 @@ class App extends React.Component {
 					<SinglePost path="/post/:id" />
 					<ModelViewer path="/model" />
 					<Ocean path="/ocean" />
+					<Globe path="/globe" />
 				</Router>
 			</AppProvider>
 		);

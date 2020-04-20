@@ -31,7 +31,7 @@ class Ocean extends Component {
 		this.width = this.container.clientWidth;
 		this.height = this.container.clientHeight;
 
-		var renderer = new THREE.WebGLRenderer({ antialias: true });
+		var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, });
 		renderer.setPixelRatio( window.devicePixelRatio );
 		renderer.setSize( this.width, this.height );
 		this.renderer = renderer;
@@ -61,8 +61,10 @@ class Ocean extends Component {
 				} ),
 				alpha: 1.0,
 				sunDirection: this.light.position.clone().normalize(),
-				sunColor: 0xffffff,
-				waterColor: 0x001e0f,
+				// sunColor: 0xffffff,
+				// waterColor: 0x001e0f,
+				sunColor: 0xdf86b6,
+				waterColor: 0xdf86b6,
 				distortionScale: 3.7,
 				fog: scene.fog !== undefined
 			}
@@ -120,13 +122,25 @@ class Ocean extends Component {
 			roughness: 0.0,
 			flatShading: true,
 			envMap: cubeCamera.renderTarget.texture,
-			side: THREE.DoubleSide
+			side: THREE.DoubleSide,
+			fog: false
 		} );
 
 		var sphere = new THREE.Mesh( geometry, material );
 		scene.add( sphere );
+
+		scene.background = new THREE.Color( 0xdf86b6 );
+
+		const fogColor = 0xdf86b6;
+		const near = 0;
+		const far = 1000;
+		const density = 0.005;
+		scene.fog = new THREE.FogExp2(fogColor, density);
+
+
 		this.sphere = sphere;
 		this.scene = scene;
+
 
 		var controls = new THREE.OrbitControls( camera, renderer.domElement );
 		controls.maxPolarAngle = Math.PI * 0.495;
@@ -201,7 +215,7 @@ class Ocean extends Component {
 
 	onWindowResize() {
 		const width = window.innerWidth;
-		const height = window.innerHeight;
+		const height = window.innerHeight - 70;
 		this.camera.aspect = width / height;
 		this.camera.updateProjectionMatrix();
 		this.renderer.setSize( width, height );
@@ -222,8 +236,8 @@ class Ocean extends Component {
 	}
 
 	render() {
-		var width = '100%';
-		var height = '100%';
+		const width = '100%';
+		const height = window.innerHeight - 70;
 		return (
 			<>
 				<Navbar/>

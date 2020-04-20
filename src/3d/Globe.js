@@ -5,6 +5,7 @@ import Clouds from '../assets/2_no_clouds_4k.jpg';
 import Elevation from '../assets/elev_bump_4k.jpg';
 import Water from '../assets/water_4k.png';
 import fairClouds from '../assets/fair_clouds_4k.png';
+import Navbar from "../components/Navbar";
 
 class Globe extends Component {
 	constructor( props ) {
@@ -167,17 +168,20 @@ class Globe extends Component {
 		const width = '100%';
 		const height = '100%';
 		return (
-			<div
-				ref={ ( container ) => {
-					this.container = container;
-				} }
-				style={ {
-					width: width,
-					height: height,
-					position: 'absolute',
-					overflow: 'hidden',
-				} }
-			></div>
+			<>
+				<Navbar/>
+				<div
+					ref={ ( container ) => {
+						this.container = container;
+					} }
+					style={ {
+						width: width,
+						height: height,
+						position: 'absolute',
+						overflow: 'hidden',
+					} }
+				></div>
+			</>
 		);
 	}
 }
