@@ -16,7 +16,7 @@ class Ocean extends Component {
 		this.stop = this.stop.bind( this );
 		this.animate = this.animate.bind( this );
 		this.renderScene = this.renderScene.bind( this );
-		this.computeBoundingBox = this.computeBoundingBox.bind( this );
+		// this.computeBoundingBox = this.computeBoundingBox.bind( this );
 		this.init = this.init.bind( this );
 		this.updateSun = this.updateSun.bind(this);
 		this.destroyContext = this.destroyContext.bind( this );
@@ -159,6 +159,7 @@ class Ocean extends Component {
 		folder.add( uniforms.size, 'value', 0.1, 10, 0.1 ).name( 'size' );
 		folder.add( uniforms.alpha, 'value', 0.9, 1, .001 ).name( 'alpha' );
 		folder.open();
+		this.gui= gui;
 
 		this.start();
 	}
@@ -178,9 +179,9 @@ class Ocean extends Component {
 
 	}
 
-	computeBoundingBox() {
+	// computeBoundingBox() {
 
-	}
+	// }
 
 	start() {
 		if ( ! this.frameId ) {
@@ -215,6 +216,7 @@ class Ocean extends Component {
 
 	componentWillUnmount() {
 		this.stop();
+		this.gui.destroy();
 		this.destroyContext();
 	}
 
