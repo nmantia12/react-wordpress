@@ -25,3 +25,11 @@ Thumbs.db
 .cache
 .env
 client-config.js
+
+# WordPress
+wordpress/wp
+wordpress/.htaccess
+
+# generated files
+# /dist
+wordpress/*

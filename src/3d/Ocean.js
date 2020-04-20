@@ -101,7 +101,6 @@ class Ocean extends Component {
 		this.updateSun();
 
 		let geometry = new THREE.IcosahedronBufferGeometry( 20, 1 );
-		console.log(geometry);
 		var count = geometry.attributes.position.count;
 		var colors = [];
 		var color = new THREE.Color();

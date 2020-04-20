@@ -1,6 +1,13 @@
 const HtmlWebPackPlugin = require( 'html-webpack-plugin' );
 const path = require( 'path' );
 const webpack = require('webpack');
+const BrowserSyncPlugin = require('browser-sync-webpack-plugin')
+
+const ENV = require('dotenv').config()
+const WP_ENV = process.env.WP_ENV || 'local'
+const WP_HOME = process.env.WP_HOME || 'http://localhost'
+
+const PROXY_URL = WP_HOME
 
 module.exports = {
 	context: __dirname,
@@ -32,11 +39,23 @@ module.exports = {
 				],
 			},
 			{
-				test: /\.(png|jp?g|svg|gif)$/,
+				test: /\.(png|jp?g|svg|gif|glb)$/,
 				use: [{
 					loader: "file-loader"
 				}]
-			}
+			},
+			{
+				test: /\.(woff|woff2)$/,
+				loader: 'url-loader?prefix=font/&limit=5000'
+			},
+			{
+				test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+				loader: 'url-loader?limit=1000&mimetype=application/octet-stream'
+			},
+			{
+				test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+				loader: 'url-loader?limit=1000&mimetype=image/svg+xml'
+			},
 		]
 	},
 	resolve: {
@@ -53,5 +72,18 @@ module.exports = {
 		new webpack.ProvidePlugin({
 			THREE: 'three'
 		}),
+		new BrowserSyncPlugin({
+			host: 'localhost',
+			port: 9001,
+			proxy: PROXY_URL,
+			files: ['**/**/**/**/*.php'],
+			reloadDelay: 0
+		},
+		{
+			host: 'localhost',
+			port: 8080,
+			proxy: PROXY_URL,
+			reloadDelay: 0
+		})
 	]
 };

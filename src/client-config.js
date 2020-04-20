@@ -1,5 +1,5 @@
 const clientConfig = {
-	siteUrl: 'https://gobrandgo.com',
+	siteUrl: 'http://localhost:9001',
 };
 
 export default clientConfig;

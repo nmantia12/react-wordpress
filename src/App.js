@@ -1,5 +1,6 @@
 import React from 'react';
 import Ocean from './3d/Ocean';
+import ModelViewer from './3d/ModelViewer';
 import './style.scss';
 import { Router } from '@reach/router';
 import Login from './components/Login';
@@ -16,24 +17,21 @@ import Page from './components/Page';
 class App extends React.Component {
 	render() {
 		return (
-			<>
-				<AppProvider>
-					<Router>
-						<Home path="/" />
-						<Blogs path="/blogs/" />
-						<Page path="/page/:id" />
-						<Login path="/login" />
-						<Dashboard path="/dashboard" />
-						<Posts path="/dashboard/posts" />
-						<CreatePost path="/dashboard/create-post" />
-						<Pages path="/dashboard/pages" />
-						<SinglePost path="/post/:id" />
-					</Router>
-				</AppProvider>
-				<div>
-					<Ocean />
-				</div>
-			</>
+			<AppProvider>
+				<Router>
+					<Home path="/" />
+					<Blogs path="/blogs/" />
+					<Page path="/page/:id" />
+					<Login path="/login" />
+					<Dashboard path="/dashboard" />
+					<Posts path="/dashboard/posts" />
+					<CreatePost path="/dashboard/create-post" />
+					<Pages path="/dashboard/pages" />
+					<SinglePost path="/post/:id" />
+					<ModelViewer path="/model" />
+					<Ocean path="/ocean" />
+				</Router>
+			</AppProvider>
 		);
 	}
 }
