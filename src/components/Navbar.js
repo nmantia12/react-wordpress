@@ -30,6 +30,12 @@ const Navbar = () => {
 					<li className="nav-item">
 						<NavLink to="/blogs">Blogs</NavLink>
 					</li>
+					<li className="nav-item">
+						<NavLink to="/ocean">Ocean</NavLink>
+					</li>
+					<li className="nav-item">
+						<NavLink to="/model">Model Viewer</NavLink>
+					</li>
 					{ isLoggedIn() ? (
 						<React.Fragment>
 							<li className="nav-item">

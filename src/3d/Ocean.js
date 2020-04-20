@@ -6,6 +6,7 @@ import 'three/examples/js/controls/OrbitControls';
 import Water from 'three/examples/js/objects/Water.js';
 import Sky from 'three/examples/js/objects/Sky.js';
 import waterNormal from '../assets/waternormals.jpg';
+import Navbar from "../components/Navbar";
 
 class Ocean extends Component {
 	constructor( props ) {
@@ -229,17 +230,20 @@ class Ocean extends Component {
 		var width = '100%';
 		var height = '100%';
 		return (
-			<div
-				ref={ ( container ) => {
-					this.container = container;
-				} }
-				style={ {
-					width: width,
-					height: height,
-					position: 'absolute',
-					overflow: 'hidden',
-				} }
-			></div>
+			<>
+				<Navbar/>
+				<div
+					ref={ ( container ) => {
+						this.container = container;
+					} }
+					style={ {
+						width: width,
+						height: height,
+						position: 'absolute',
+						overflow: 'hidden',
+					} }
+				></div>
+			</>
 		);
 	}
 }
