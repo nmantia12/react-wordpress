@@ -122,6 +122,10 @@ class Gl {
 		}
 	}
 
+	stop() {
+		cancelAnimationFrame( this.frameId );
+	}
+
 	animate() {
 		this.frameId = requestAnimationFrame( this.animate );
 		this.renderer.render( this.scene, this.camera );
@@ -252,18 +256,24 @@ class Slider extends Component {
 	}
 
 	componentDidMount() {
-		this.gl = new Gl();
+		this._isMounted = true;
 
-		this.ui = {
-			items: document.querySelectorAll( '.js-slide' ),
-			titles: document.querySelectorAll( '.js-title' ),
-			lines: document.querySelectorAll( '.js-progress-line' ),
-		};
+		if ( this._isMounted ) {
+			this.gl = new Gl();
 
-		this.init();
+			this.ui = {
+				items: this.el.current.querySelectorAll( '.js-slide' ),
+				titles: document.querySelectorAll( '.js-title' ),
+				lines: document.querySelectorAll( '.js-progress-line' ),
+			};
+
+			this.init();
+		}
 	}
 
 	componentWillUnmount() {
+		this._isMounted = false;
+		this.stop();
 		this.destroy();
 	}
 
@@ -415,14 +425,14 @@ class Slider extends Component {
 		this.tl && this.tl.progress( state.progress );
 	}
 
-	// preRender() {
-
-	// }
-
 	start() {
 		if ( ! this.frameId ) {
 			this.frameId = requestAnimationFrame( this.animate );
 		}
+	}
+
+	stop() {
+		cancelAnimationFrame( this.frameId );
 	}
 
 	animate() {
@@ -528,8 +538,8 @@ class Slider extends Component {
 	render() {
 		return (
 			<div className="slider-wrap">
-				<div className="slider | js-drag-area" ref={ this.el }>
-					<div className="slider__inner | js-slider">
+				<div className="slider | js-drag-area">
+					<div className="slider__inner | js-slider" ref={ this.el }>
 						<div className="slide | js-slide">
 							<div className="slide__inner | js-slide__inner">
 								<img
