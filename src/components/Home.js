@@ -1,6 +1,6 @@
 import React from 'react';
 import Navbar from './Navbar';
-import Slider from './Slider';
+import Slider from './slider/Slider';
 import FeaturedImage from './layouts/FeaturedImage';
 import axios from 'axios';
 import Loader from '../loader.gif';
