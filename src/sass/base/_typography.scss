@@ -201,8 +201,11 @@ a.article:hover {
 }
 
 .main-navbar {
-	background-color: #50b8dc;
+	background-color: #111;
 	display: flex;
+	position: fixed;
+	top: 0;
+	width: 100%;
 	justify-content: flex-end;
 }
 

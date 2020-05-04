@@ -19,7 +19,7 @@ class App extends React.Component {
 	render() {
 		return (
 			<AppProvider>
-				<Router>
+				<Router id="global_router">
 					<Home path="/" />
 					<Blogs path="/blogs/" />
 					<Page path="/page/:id" />

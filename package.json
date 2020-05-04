@@ -8,6 +8,7 @@
 		"webpack-dev-server": "webpack-dev-server",
 		"dev": "webpack-dev-server --mode=development",
 		"prod": "webpack --mode=production",
+		"deploy": "aws s3 sync ./dist s3://headless-react/",
 		"eslint": "eslint ./src/*.js ./src/**/**/**/*.js ./src/**/**/**/**/*.js",
 		"eslint:fix": "eslint --fix ./src/*.js ./src/**/**/**/*.js ./src/**/**/**/**/*.js",
 		"stylelint": "stylelint ./src/*.scss",
