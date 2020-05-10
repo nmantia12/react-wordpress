@@ -2,6 +2,7 @@ $easeOutExpo: cubic-bezier(0.190, 1.000, 0.220, 1.000);
 
 .slider-wrap {
 	height: 100vh;
+	transition: all .5s ease;
 }
 
 body{
@@ -85,7 +86,7 @@ body{
   display: flex;
   align-items: center;
   height: 100%;
-  user-select: none;
+  // user-select: none;
   cursor: grab;
   z-index: 2;
 
@@ -131,7 +132,7 @@ body{
 }
 
 
-.titles{
+.titles {
   position: fixed;
   top: 50%;
   left: 100px;
@@ -139,7 +140,12 @@ body{
 	width: calc(100% - 200px);
   overflow: hidden;
   pointer-events: none;
-  z-index: 3;
+	z-index: 3;
+
+	&.faded {
+		overflow: visible;
+		opacity: .3;
+	}
 
   &__list{
     position: absolute;

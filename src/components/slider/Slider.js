@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import gsap from 'gsap';
-import { vertexShader, fragmentShader } from './Shaders';
 import { store } from './Store';
 import axios from 'axios';
 import Spinner from '../../loader.gif';
@@ -9,129 +8,9 @@ import renderHTML from 'react-render-html';
 import Moment from 'react-moment';
 import { Link } from '@reach/router';
 import clientConfig from '../../client-config';
-
-const loader = new THREE.TextureLoader();
-loader.crossOrigin = 'anonymous';
-
-class Gl {
-	constructor() {
-		this.scene = new THREE.Scene();
-		this.animate = this.animate.bind( this );
-
-		this.camera = new THREE.OrthographicCamera(
-			store.ww / -2,
-			store.ww / 2,
-			store.wh / 2,
-			store.wh / -2,
-			1,
-			10
-		);
-		this.camera.lookAt( this.scene.position );
-		this.camera.position.z = 1;
-
-		this.renderer = new THREE.WebGLRenderer( {
-			alpha: true,
-			antialias: true,
-		} );
-		this.renderer.setPixelRatio( 1.5 );
-		this.renderer.setSize( store.ww, store.wh );
-		this.renderer.setClearColor( 0xffffff, 0 );
-
-		this.init();
-	}
-
-	start() {
-		if ( ! this.frameId ) {
-			this.frameId = requestAnimationFrame( this.animate );
-		}
-	}
-
-	stop() {
-		cancelAnimationFrame( this.frameId );
-	}
-
-	animate() {
-		this.frameId = requestAnimationFrame( this.animate );
-		this.renderer.render( this.scene, this.camera );
-	}
-
-	init() {
-		const domEl = this.renderer.domElement;
-		domEl.classList.add( 'dom-gl' );
-		document.body.appendChild( domEl );
-		this.start();
-	}
-}
-
-class GlObject extends THREE.Object3D {
-	init( el ) {
-		this.el = el;
-		this.resize();
-	}
-
-	resize() {
-		this.rect = this.el.getBoundingClientRect();
-		const { left, top, width, height } = this.rect;
-
-		this.pos = {
-			x: left + width / 2 - store.ww / 2,
-			y: top + height / 2 - store.wh / 2,
-		};
-
-		this.position.y = this.pos.y;
-		this.position.x = this.pos.x;
-
-		this.updateX();
-	}
-
-	updateX( current ) {
-		current && ( this.position.x = current + this.pos.x );
-	}
-}
-
-const planeGeo = new THREE.PlaneBufferGeometry( 1, 1, 32, 32 );
-const planeMat = new THREE.ShaderMaterial( {
-	transparent: true,
-	fragmentShader,
-	vertexShader,
-} );
-
-class Plane extends GlObject {
-	init( el, gl ) {
-		super.init( el, gl );
-
-		this.geo = planeGeo;
-		this.mat = planeMat.clone();
-
-		this.mat.uniforms = {
-			uTime: { value: 0 },
-			uTexture: { value: 0 },
-			uMeshSize: {
-				value: new THREE.Vector2( this.rect.width, this.rect.height ),
-			},
-			uImageSize: { value: new THREE.Vector2( 0, 0 ) },
-			uScale: { value: 0.75 },
-			uVelo: { value: 0 },
-		};
-
-		this.img = this.el.querySelector( 'img' );
-		this.texture = loader.load( this.img.src, ( texture ) => {
-			texture.minFilter = THREE.LinearFilter;
-			texture.generateMipmaps = false;
-
-			this.mat.uniforms.uTexture.value = texture;
-			this.mat.uniforms.uImageSize.value = [
-				this.img.naturalWidth,
-				this.img.naturalHeight,
-			];
-		} );
-
-		this.mesh = new THREE.Mesh( this.geo, this.mat );
-		this.mesh.scale.set( this.rect.width, this.rect.height, 1 );
-		this.add( this.mesh );
-		gl.scene.add( this );
-	}
-}
+import Plane from './Plane';
+import Gl from './Gl';
+import * as Vibrant from 'node-vibrant';
 
 class Slider extends Component {
 	constructor( props ) {
@@ -140,8 +19,7 @@ class Slider extends Component {
 
 		this.el = React.createRef();
 
-		// this.onScroll = this.onScroll.bind( this );
-		// window.addEventListener( 'scroll', this.onScroll );
+		this.onScrollEvent = this.onScrollEvent.bind( this );
 
 		this.opts = {
 			speed: 2,
@@ -153,7 +31,9 @@ class Slider extends Component {
 
 		this.state = {
 			loading: false,
+			bgColor: '#111',
 			posts: [],
+			colors: [],
 			error: '',
 			target: 0,
 			current: 0,
@@ -176,6 +56,7 @@ class Slider extends Component {
 			},
 		};
 
+		this.colors = [];
 		this.items = [];
 
 		this.events = {
@@ -184,8 +65,8 @@ class Slider extends Component {
 			down: store.isDevice ? 'touchstart' : 'mousedown',
 		};
 
-		// this.onWindowResize = this.onWindowResize.bind( this );
-		// window.addEventListener( 'resize', this.onWindowResize );
+		this.onWindowResize = this.onWindowResize.bind( this );
+		window.addEventListener( 'resize', this.onWindowResize );
 	}
 
 	createMarkup = ( data ) => ( {
@@ -199,13 +80,30 @@ class Slider extends Component {
 		this.gl.camera.updateProjectionMatrix();
 		// this.gl.renderer.setPixelRatio( 1.5 );
 		this.gl.renderer.setSize( width, height );
+		this.plane.init( this.el.current, this.gl );
 	}
+
+	doStuffWithPalette = ( imgSrc ) => {
+		Vibrant.from( imgSrc )
+			.getPalette()
+			.then( ( palette ) => {
+				// do what ever you want with palette, even setState if you want to, just avoid calling it from a render/componentWillUpdate/componentDidUpdate to avoid having the same error you've got in the first place
+				const colors = this.colors;
+				colors.push( palette.Vibrant.hex );
+				this.setState( { colors } );
+			} )
+			.catch( ( error ) => {
+				// handle errors
+				console.log( error );
+			} );
+	};
 
 	componentDidMount() {
 		const wordPressSiteURL = clientConfig.siteUrl;
 		this._isMounted = true;
 
 		if ( this._isMounted ) {
+			window.addEventListener( 'scroll', this.onScrollEvent );
 			this.setState( { loading: true }, () => {
 				axios
 					.get(
@@ -214,6 +112,18 @@ class Slider extends Component {
 					.then( ( res ) => {
 						if ( 200 === res.status ) {
 							if ( res.data.length && this._isMounted ) {
+								const colors = [];
+								res.data.map( ( post, index ) => {
+									const imgUrl =
+										post.better_featured_image &&
+										post.better_featured_image
+											? post.better_featured_image
+													.source_url
+											: 'http://localhost:9001/wp/wp-content/uploads/2020/05/d18f47ff-3adf-3948-b3d0-2d451da90866.png';
+
+									this.doStuffWithPalette( imgUrl );
+								} );
+
 								this.setState( {
 									loading: false,
 									posts: res.data,
@@ -444,7 +354,7 @@ class Slider extends Component {
 	}
 
 	transformItems() {
-		const { flags } = this.state;
+		const { flags, colors } = this.state;
 
 		for ( let i = 0; i < this.items.length; i++ ) {
 			const item = this.items[ i ];
@@ -455,6 +365,11 @@ class Slider extends Component {
 
 			if ( ! item.out && item.tl ) {
 				item.tl.progress( progress );
+
+				if ( progress > 0.35 && progress < 0.66 ) {
+					const hex = colors[ i ] ? colors[ i ] : '#111';
+					this.setState( { bgColor: hex } );
+				}
 			}
 
 			if ( isVisible || flags.resize ) {
@@ -473,6 +388,7 @@ class Slider extends Component {
 		const start = left + translate;
 		const end = right + translate;
 		const isVisible = start < threshold + ww && end > -threshold;
+
 		const progress = gsap.utils.clamp(
 			0,
 			1,
@@ -519,8 +435,7 @@ class Slider extends Component {
 		state.off = state.target;
 	}
 
-	onScroll( e ) {
-		console.log( 'something' );
+	onScrollEvent( e ) {
 		const { x, y } = this.getPos( e );
 		const state = this.state;
 
@@ -557,7 +472,7 @@ class Slider extends Component {
 	}
 
 	render() {
-		const { loading, posts, error } = this.state;
+		const { loading, posts, error, colors, bgColor } = this.state;
 
 		return (
 			<React.Fragment>
@@ -568,7 +483,10 @@ class Slider extends Component {
 					/>
 				) }
 				{ this._isMounted && posts.length ? (
-					<div className="slider-wrap">
+					<div
+						className="slider-wrap"
+						style={ { background: bgColor } }
+					>
 						<div className="slider | js-drag-area">
 							<div
 								className="slider__inner | js-slider"
@@ -589,8 +507,8 @@ class Slider extends Component {
 													post.better_featured_image &&
 													post.better_featured_image
 														? post
-																.better_featured_image
-																.source_url
+															.better_featured_image
+															.source_url
 														: 'http://localhost:9001/wp/wp-content/uploads/2020/05/d18f47ff-3adf-3948-b3d0-2d451da90866.png'
 												}
 												alt=""
@@ -604,6 +522,25 @@ class Slider extends Component {
 						</div>
 
 						<div className="titles">
+							<div className="titles__title titles__title--proxy">
+								Lorem ipsum
+							</div>
+							<div className="titles__list | js-titles">
+								{ posts.map( ( post, index ) => (
+									<div
+										key={ index }
+										className="titles__title | js-title"
+									>
+										{ post.title.rendered }
+									</div>
+								) ) }
+								<div className="titles__title | js-title">
+									{ posts[ '0' ].title.rendered }
+								</div>
+							</div>
+						</div>
+
+						<div className="titles faded">
 							<div className="titles__title titles__title--proxy">
 								Lorem ipsum
 							</div>

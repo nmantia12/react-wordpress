@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from "@reach/router";
+import { Link } from '@reach/router';
 
 /**
  * Reach Routers gives us access to a function called getProps.
@@ -9,12 +9,14 @@ import { Link } from "@reach/router";
  *
  * @param props
  * @return {*}
- * @constructor
+ * @class
  */
-const NavLink = props => (
+const NavLink = ( props ) => (
 	<Link
-		{...props}
-		getProps={({ isCurrent }) => ( { style: { color: isCurrent ? '#fff' : '#fffc' } } )}
+		{ ...props }
+		getProps={ ( { isCurrent } ) => ( {
+			style: { color: isCurrent ? '#fff' : '#fffc' },
+		} ) }
 		className="nav-link"
 	/>
 );
