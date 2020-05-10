@@ -2,6 +2,13 @@ import React, { Component } from 'react';
 import gsap from 'gsap';
 import { vertexShader, fragmentShader } from './Shaders';
 import { store } from './Store';
+import axios from 'axios';
+import Spinner from '../../loader.gif';
+import FeaturedImage from '../layouts/FeaturedImage';
+import renderHTML from 'react-render-html';
+import Moment from 'react-moment';
+import { Link } from '@reach/router';
+import clientConfig from '../../client-config';
 
 const loader = new THREE.TextureLoader();
 loader.crossOrigin = 'anonymous';
@@ -133,15 +140,21 @@ class Slider extends Component {
 
 		this.el = React.createRef();
 
+		// this.onScroll = this.onScroll.bind( this );
+		// window.addEventListener( 'scroll', this.onScroll );
+
 		this.opts = {
 			speed: 2,
 			threshold: 50,
-			ease: 0.075,
+			ease: 0.035,
 		};
 
 		this.animate = this.animate.bind( this );
 
 		this.state = {
+			loading: false,
+			posts: [],
+			error: '',
 			target: 0,
 			current: 0,
 			currentRounded: 0,
@@ -170,21 +183,72 @@ class Slider extends Component {
 			up: store.isDevice ? 'touchend' : 'mouseup',
 			down: store.isDevice ? 'touchstart' : 'mousedown',
 		};
+
+		// this.onWindowResize = this.onWindowResize.bind( this );
+		// window.addEventListener( 'resize', this.onWindowResize );
+	}
+
+	createMarkup = ( data ) => ( {
+		__html: data,
+	} );
+
+	onWindowResize() {
+		const width = window.innerWidth;
+		const height = window.innerHeight;
+		this.gl.camera.aspect = width / height;
+		this.gl.camera.updateProjectionMatrix();
+		// this.gl.renderer.setPixelRatio( 1.5 );
+		this.gl.renderer.setSize( width, height );
 	}
 
 	componentDidMount() {
+		const wordPressSiteURL = clientConfig.siteUrl;
 		this._isMounted = true;
 
 		if ( this._isMounted ) {
-			this.gl = new Gl();
+			this.setState( { loading: true }, () => {
+				axios
+					.get(
+						`${ wordPressSiteURL }/wp-json/wp/v2/portfolio?_embed&per_page=9`
+					)
+					.then( ( res ) => {
+						if ( 200 === res.status ) {
+							if ( res.data.length && this._isMounted ) {
+								this.setState( {
+									loading: false,
+									posts: res.data,
+								} );
 
-			this.ui = {
-				items: this.el.current.querySelectorAll( '.js-slide' ),
-				titles: document.querySelectorAll( '.js-title' ),
-				lines: document.querySelectorAll( '.js-progress-line' ),
-			};
+								this.gl = new Gl();
 
-			this.init();
+								this.ui = {
+									items: this.el.current.querySelectorAll(
+										'.js-slide'
+									),
+									titles: document.querySelectorAll(
+										'.js-title'
+									),
+									lines: document.querySelectorAll(
+										'.js-progress-line'
+									),
+								};
+
+								this.init();
+							} else if ( this._isMounted ) {
+								this.setState( {
+									loading: false,
+									error: 'No Posts Found',
+								} );
+							}
+						}
+					} )
+					.catch( ( err ) => {
+						if ( this._isMounted ) {
+							console.log( err );
+							this.setState( { loading: false, error: err } );
+						}
+					} );
+			} );
 		}
 	}
 
@@ -244,13 +308,15 @@ class Slider extends Component {
 			left: wrapDiff,
 		} = this.el.current.getBoundingClientRect();
 
-		// Set bounding
-		state.max = -(
-			items[ items.length - 1 ].getBoundingClientRect().right -
-			wrapWidth -
-			wrapDiff
-		);
-		state.min = 0;
+		if ( this._isMounted ) {
+			// Set bounding
+			state.max = -(
+				items[ items.length - 1 ].getBoundingClientRect().right -
+				wrapWidth -
+				wrapDiff
+			);
+			state.min = 0;
+		}
 
 		// Global timeline
 		this.tl = gsap
@@ -302,6 +368,7 @@ class Slider extends Component {
 			// Create webgl plane
 			const plane = new Plane();
 			plane.init( el, this.gl );
+			this.plane = plane;
 
 			// Timeline that plays when visible
 			const tl = gsap.timeline( { paused: true } ).fromTo(
@@ -337,12 +404,24 @@ class Slider extends Component {
 	calc() {
 		const state = this.state;
 		state.current += ( state.target - state.current ) * this.opts.ease;
-		state.currentRounded = Math.round( state.current * 100 ) / 100;
+		state.currentRounded = ( state.current * 100 ) / 100;
 		state.diff = ( state.target - state.current ) * 0.0005;
+		const { items } = this.ui;
+		const {
+			width: wrapWidth,
+			left: wrapDiff,
+		} = this.el.current.getBoundingClientRect();
+
 		state.progress = gsap.utils.wrap(
 			0,
 			1,
-			state.currentRounded / state.max
+			state.currentRounded /
+				Math.round(
+					state.max +
+						( state.max * ( 1 / items.length ) -
+							wrapWidth * ( 1 / items.length ) -
+							wrapDiff * ( 1 / items.length ) )
+				)
 		);
 
 		this.tl && this.tl.progress( state.progress );
@@ -440,6 +519,25 @@ class Slider extends Component {
 		state.off = state.target;
 	}
 
+	onScroll( e ) {
+		console.log( 'something' );
+		const { x, y } = this.getPos( e );
+		const state = this.state;
+
+		// if (!state.flags.dragging) return;
+
+		const { off, on } = state;
+		const moveX = x - on.x;
+		const moveY = y - on.y;
+
+		if ( Math.abs( moveX ) > Math.abs( moveY ) && e.cancelable ) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+
+		state.target = off + moveX * this.opts.speed;
+	}
+
 	onMove( e ) {
 		const { x, y } = this.getPos( e );
 		const state = this.state;
@@ -459,154 +557,83 @@ class Slider extends Component {
 	}
 
 	render() {
+		const { loading, posts, error } = this.state;
+
 		return (
-			<div className="slider-wrap">
-				<div className="slider | js-drag-area">
-					<div className="slider__inner | js-slider" ref={ this.el }>
-						<div className="slide | js-slide">
-							<div className="slide__inner | js-slide__inner">
-								<img
-									className="js-slide__img"
-									src="http://s3-us-west-2.amazonaws.com/s.cdpn.io/58281/tex1.jpg"
-									alt=""
-									crossOrigin="anonymous"
-									draggable="false"
-								/>
+			<React.Fragment>
+				{ error && (
+					<div
+						className="alert alert-danger"
+						dangerouslySetInnerHTML={ this.createMarkup( error ) }
+					/>
+				) }
+				{ this._isMounted && posts.length ? (
+					<div className="slider-wrap">
+						<div className="slider | js-drag-area">
+							<div
+								className="slider__inner | js-slider"
+								ref={ this.el }
+							>
+								{ posts.map( ( post, index ) => (
+									<div
+										className="slide | js-slide"
+										key={ index }
+										style={ {
+											left: index * 120 + '%',
+										} }
+									>
+										<div className="slide__inner | js-slide__inner">
+											<img
+												className="js-slide__img"
+												src={
+													post.better_featured_image &&
+													post.better_featured_image
+														? post
+																.better_featured_image
+																.source_url
+														: 'http://localhost:9001/wp/wp-content/uploads/2020/05/d18f47ff-3adf-3948-b3d0-2d451da90866.png'
+												}
+												alt=""
+												crossOrigin="anonymous"
+												draggable="false"
+											/>
+										</div>
+									</div>
+								) ) }
 							</div>
 						</div>
-						<div
-							className="slide | js-slide"
-							style={ { left: '120%' } }
-						>
-							<div className="slide__inner | js-slide__inner">
-								<img
-									className="js-slide__img"
-									src="http://s3-us-west-2.amazonaws.com/s.cdpn.io/58281/tex2.jpg"
-									alt=""
-									crossOrigin="anonymous"
-									draggable="false"
-								/>
-							</div>
-						</div>
-						<div
-							className="slide | js-slide"
-							style={ { left: '240%' } }
-						>
-							<div className="slide__inner | js-slide__inner">
-								<img
-									className="js-slide__img"
-									src="http://s3-us-west-2.amazonaws.com/s.cdpn.io/58281/tex1.jpg"
-									alt=""
-									crossOrigin="anonymous"
-									draggable="false"
-								/>
-							</div>
-						</div>
-						<div
-							className="slide | js-slide"
-							style={ { left: '360%' } }
-						>
-							<div className="slide__inner | js-slide__inner">
-								<img
-									className="js-slide__img"
-									src="http://s3-us-west-2.amazonaws.com/s.cdpn.io/58281/tex2.jpg"
-									alt=""
-									crossOrigin="anonymous"
-									draggable="false"
-								/>
-							</div>
-						</div>
-						<div
-							className="slide | js-slide"
-							style={ { left: '480%' } }
-						>
-							<div className="slide__inner | js-slide__inner">
-								<img
-									className="js-slide__img"
-									src="http://s3-us-west-2.amazonaws.com/s.cdpn.io/58281/tex1.jpg"
-									alt=""
-									crossOrigin="anonymous"
-									draggable="false"
-								/>
-							</div>
-						</div>
-						<div
-							className="slide | js-slide"
-							style={ { left: '600%' } }
-						>
-							<div className="slide__inner | js-slide__inner">
-								<img
-									className="js-slide__img"
-									src="http://s3-us-west-2.amazonaws.com/s.cdpn.io/58281/tex2.jpg"
-									alt=""
-									crossOrigin="anonymous"
-									draggable="false"
-								/>
-							</div>
-						</div>
-						<div
-							className="slide | js-slide"
-							style={ { left: '720%' } }
-						>
-							<div className="slide__inner | js-slide__inner">
-								<img
-									className="js-slide__img"
-									src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/58281/tex1.jpg"
-									alt=""
-									crossOrigin="anonymous"
-									draggable="false"
-								/>
-							</div>
-						</div>
-						<div
-							className="slide | js-slide"
-							style={ { left: '840%' } }
-						>
-							<div className="slide__inner | js-slide__inner">
-								<img
-									className="js-slide__img"
-									src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/58281/tex2.jpg"
-									alt=""
-									crossOrigin="anonymous"
-									draggable="false"
-								/>
-							</div>
-						</div>
-					</div>
-				</div>
 
-				<div className="titles">
-					<div className="titles__title titles__title--proxy">
-						Lorem ipsum
-					</div>
-					<div className="titles__list | js-titles">
-						<div className="titles__title | js-title">
-							Moonrocket
+						<div className="titles">
+							<div className="titles__title titles__title--proxy">
+								Lorem ipsum
+							</div>
+							<div className="titles__list | js-titles">
+								{ posts.map( ( post, index ) => (
+									<div
+										key={ index }
+										className="titles__title | js-title"
+									>
+										{ post.title.rendered }
+									</div>
+								) ) }
+								<div className="titles__title | js-title">
+									{ posts[ '0' ].title.rendered }
+								</div>
+							</div>
 						</div>
-						<div className="titles__title | js-title">Spaceman</div>
-						<div className="titles__title | js-title">
-							Moonrocket
-						</div>
-						<div className="titles__title | js-title">Spaceman</div>
-						<div className="titles__title | js-title">
-							Moonrocket
-						</div>
-						<div className="titles__title | js-title">Spaceman</div>
-						<div className="titles__title | js-title">
-							Moonrocket
-						</div>
-						<div className="titles__title | js-title">Spaceman</div>
-						<div className="titles__title | js-title">
-							Moonrocket
-						</div>
-					</div>
-				</div>
 
-				<div className="progress">
-					<div className="progress__line | js-progress-line"></div>
-					<div className="progress__line | js-progress-line-2"></div>
-				</div>
-			</div>
+						<div className="progress">
+							<div className="progress__line | js-progress-line"></div>
+							<div className="progress__line | js-progress-line-2"></div>
+						</div>
+					</div>
+				) : (
+					''
+				) }
+				{ loading && (
+					<img className="loader" src={ Spinner } alt="Loader" />
+				) }
+			</React.Fragment>
 		);
 	}
 }

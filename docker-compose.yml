@@ -34,7 +34,7 @@ services:
       - ./wordpress:/var/www/htdocs
       - ./config:/var/www/config
       - ./vendor:/var/www/vendor
-      - ./wordpress/.htaccess:/var/www/.htaccess
+      - ./wordpress/.htaccess:/var/html/www/.htaccess
       # - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     restart: always
 

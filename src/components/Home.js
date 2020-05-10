@@ -25,33 +25,7 @@ class Home extends React.Component {
 	} );
 
 	componentDidMount() {
-		const wordPressSiteURL = clientConfig.siteUrl;
 		this._isMounted = true;
-
-		if ( this._isMounted ) {
-			this.setState( { loading: true }, () => {
-				axios
-					.get( `${ wordPressSiteURL }/wp-json/wp/v2/posts?_embed` )
-					.then( ( res ) => {
-						if ( 200 === res.status ) {
-							if ( res.data.length ) {
-								this.setState( {
-									loading: false,
-									posts: res.data,
-								} );
-							} else {
-								this.setState( {
-									loading: false,
-									error: 'No Posts Found',
-								} );
-							}
-						}
-					} )
-					.catch( ( err ) =>
-						this.setState( { loading: false, error: err } )
-					);
-			} );
-		}
 	}
 
 	componentWillUnmount() {
@@ -59,75 +33,10 @@ class Home extends React.Component {
 	}
 
 	render() {
-		const { loading, posts, error } = this.state;
-
 		return (
 			<React.Fragment>
 				<Navbar />
 				<Slider />
-				{ error && (
-					<div
-						className="alert alert-danger"
-						dangerouslySetInnerHTML={ this.createMarkup( error ) }
-					/>
-				) }
-				{ posts.length ? (
-					<div className="mt-5 posts-container">
-						{ posts.map( ( post ) => (
-							<div
-								key={ post.id }
-								className="card border-dark mb-3"
-								style={ {
-									maxWidth: '50rem',
-									margin: '0 auto',
-								} }
-							>
-								{ /*Featured Image*/ }
-								{ post._embedded[ 'wp:featuredmedia' ] && (
-									<Link to={ `/post/${ post.id }` }>
-										<FeaturedImage
-											image={
-												post._embedded[
-													'wp:featuredmedia'
-												][ '0' ]
-											}
-										/>
-									</Link>
-								) }
-
-								<div className="card-header">
-									<Link
-										to={ `/post/${ post.id }` }
-										className="text-secondary font-weight-bold"
-										style={ { textDecoration: 'none' } }
-									>
-										{ renderHTML( post.title.rendered ) }
-									</Link>
-								</div>
-								<div className="card-body">
-									<div className="card-text post-content">
-										{ renderHTML( post.excerpt.rendered ) }
-									</div>
-								</div>
-								<div className="card-footer">
-									<Moment fromNow>{ post.date }</Moment>
-									<Link
-										to={ `/post/${ post.id }` }
-										className="btn btn-secondary float-right"
-										style={ { textDecoration: 'none' } }
-									>
-										Read More...
-									</Link>
-								</div>
-							</div>
-						) ) }
-					</div>
-				) : (
-					''
-				) }
-				{ loading && (
-					<img className="loader" src={ Loader } alt="Loader" />
-				) }
 			</React.Fragment>
 		);
 	}
