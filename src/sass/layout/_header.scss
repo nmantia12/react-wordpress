@@ -5,7 +5,9 @@
 .hamburger-wrapper {
 	position: relative;
 	height: 15px;
+	width: 24px;
 	z-index: 99;
+	cursor: pointer;
 	outline: none !important;
 
   &.active {

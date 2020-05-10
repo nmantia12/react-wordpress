@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { store } from './Store';
 import axios from 'axios';
 import Spinner from '../../loader.gif';
+import DefaultImg from '../../default.png';
 import FeaturedImage from '../layouts/FeaturedImage';
 import renderHTML from 'react-render-html';
 import Moment from 'react-moment';
@@ -83,18 +84,21 @@ class Slider extends Component {
 		this.plane.init( this.el.current, this.gl );
 	}
 
-	doStuffWithPalette = ( imgSrc ) => {
+	doStuffWithPalette = ( imgSrc, index ) => {
+		const colors = this.colors;
 		Vibrant.from( imgSrc )
 			.getPalette()
 			.then( ( palette ) => {
 				// do what ever you want with palette, even setState if you want to, just avoid calling it from a render/componentWillUpdate/componentDidUpdate to avoid having the same error you've got in the first place
-				const colors = this.colors;
-				colors.push( palette.Vibrant.hex );
+				const hex = palette.Vibrant.hex;
+				colors[ index ] = hex;
 				this.setState( { colors } );
 			} )
 			.catch( ( error ) => {
 				// handle errors
-				console.log( error );
+				const hex = '#111';
+				colors[ index ] = hex;
+				this.setState( { colors } );
 			} );
 	};
 
@@ -112,16 +116,15 @@ class Slider extends Component {
 					.then( ( res ) => {
 						if ( 200 === res.status ) {
 							if ( res.data.length && this._isMounted ) {
-								const colors = [];
 								res.data.map( ( post, index ) => {
 									const imgUrl =
 										post.better_featured_image &&
 										post.better_featured_image
 											? post.better_featured_image
-													.source_url
-											: 'http://localhost:9001/wp/wp-content/uploads/2020/05/d18f47ff-3adf-3948-b3d0-2d451da90866.png';
+												.source_url
+											: DefaultImg;
 
-									this.doStuffWithPalette( imgUrl );
+									this.doStuffWithPalette( imgUrl, index );
 								} );
 
 								this.setState( {
@@ -507,9 +510,9 @@ class Slider extends Component {
 													post.better_featured_image &&
 													post.better_featured_image
 														? post
-															.better_featured_image
-															.source_url
-														: 'http://localhost:9001/wp/wp-content/uploads/2020/05/d18f47ff-3adf-3948-b3d0-2d451da90866.png'
+																.better_featured_image
+																.source_url
+														: DefaultImg
 												}
 												alt=""
 												crossOrigin="anonymous"
