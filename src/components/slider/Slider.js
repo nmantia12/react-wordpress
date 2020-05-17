@@ -33,6 +33,7 @@ class Slider extends Component {
 		this.state = {
 			loading: false,
 			bgColor: '#111',
+			textColor: '#fff',
 			posts: [],
 			colors: [],
 			error: '',
@@ -58,6 +59,7 @@ class Slider extends Component {
 		};
 
 		this.colors = [];
+		this.titleColors = [];
 		this.items = [];
 
 		this.events = {
@@ -86,19 +88,22 @@ class Slider extends Component {
 
 	doStuffWithPalette = ( imgSrc, index ) => {
 		const colors = this.colors;
+		const titleColors = this.titleColors;
 		Vibrant.from( imgSrc )
 			.getPalette()
 			.then( ( palette ) => {
 				// do what ever you want with palette, even setState if you want to, just avoid calling it from a render/componentWillUpdate/componentDidUpdate to avoid having the same error you've got in the first place
-				const hex = palette.Vibrant.hex;
+				const hex = '#111';
 				colors[ index ] = hex;
-				this.setState( { colors } );
+				titleColors[ index ] = palette.LightVibrant.hex;
+				this.setState( { colors, titleColors } );
 			} )
 			.catch( ( error ) => {
 				// handle errors
 				const hex = '#111';
 				colors[ index ] = hex;
-				this.setState( { colors } );
+				titleColors[ index ] = '#fff';
+				this.setState( { colors, titleColors } );
 			} );
 	};
 
@@ -357,7 +362,7 @@ class Slider extends Component {
 	}
 
 	transformItems() {
-		const { flags, colors } = this.state;
+		const { flags, colors, titleColors } = this.state;
 
 		for ( let i = 0; i < this.items.length; i++ ) {
 			const item = this.items[ i ];
@@ -371,7 +376,10 @@ class Slider extends Component {
 
 				if ( progress > 0.35 && progress < 0.66 ) {
 					const hex = colors[ i ] ? colors[ i ] : '#111';
-					this.setState( { bgColor: hex } );
+					const textHex = titleColors[ i ]
+						? titleColors[ i ]
+						: '#fff';
+					this.setState( { bgColor: hex, textColor: textHex } );
 				}
 			}
 
@@ -475,7 +483,14 @@ class Slider extends Component {
 	}
 
 	render() {
-		const { loading, posts, error, colors, bgColor } = this.state;
+		const {
+			loading,
+			posts,
+			error,
+			colors,
+			bgColor,
+			textColor,
+		} = this.state;
 
 		return (
 			<React.Fragment>
@@ -503,22 +518,24 @@ class Slider extends Component {
 											left: index * 120 + '%',
 										} }
 									>
-										<div className="slide__inner | js-slide__inner">
-											<img
-												className="js-slide__img"
-												src={
-													post.better_featured_image &&
-													post.better_featured_image
-														? post
-																.better_featured_image
-																.source_url
-														: DefaultImg
-												}
-												alt=""
-												crossOrigin="anonymous"
-												draggable="false"
-											/>
-										</div>
+										<Link to={ `/portfolio/${ post.id }` }>
+											<div className="slide__inner | js-slide__inner">
+												<img
+													className="js-slide__img"
+													src={
+														post.better_featured_image &&
+														post.better_featured_image
+															? post
+																	.better_featured_image
+																	.source_url
+															: DefaultImg
+													}
+													alt=""
+													crossOrigin="anonymous"
+													draggable="false"
+												/>
+											</div>
+										</Link>
 									</div>
 								) ) }
 							</div>
@@ -532,12 +549,16 @@ class Slider extends Component {
 								{ posts.map( ( post, index ) => (
 									<div
 										key={ index }
+										style={ { color: textColor } }
 										className="titles__title | js-title"
 									>
 										{ post.title.rendered }
 									</div>
 								) ) }
-								<div className="titles__title | js-title">
+								<div
+									style={ { color: textColor } }
+									className="titles__title | js-title"
+								>
 									{ posts[ '0' ].title.rendered }
 								</div>
 							</div>
@@ -551,12 +572,16 @@ class Slider extends Component {
 								{ posts.map( ( post, index ) => (
 									<div
 										key={ index }
+										style={ { color: textColor } }
 										className="titles__title | js-title"
 									>
 										{ post.title.rendered }
 									</div>
 								) ) }
-								<div className="titles__title | js-title">
+								<div
+									style={ { color: textColor } }
+									className="titles__title | js-title"
+								>
 									{ posts[ '0' ].title.rendered }
 								</div>
 							</div>

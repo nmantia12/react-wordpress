@@ -121,11 +121,12 @@ body{
 
     /*
     height: 100%;
-    width: 140%;
+    width: 100%;
     position: absolute;
     top: 0;
-    left: -20%;
-    object-fit: cover;
+    left: 0;
+		object-fit: contain;
+		object-position: top center;
     will-change: transform;
     */
   }
@@ -167,6 +168,7 @@ body{
 		overflow: hidden;
 		text-overflow: ellipsis;
 		text-align: left;
+		transition: all 1s ease;
 
     &--proxy{
       visibility: hidden;

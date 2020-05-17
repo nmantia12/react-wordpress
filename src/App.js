@@ -28,7 +28,7 @@ class App extends React.Component {
 					<Posts path="/dashboard/posts" />
 					<CreatePost path="/dashboard/create-post" />
 					<Pages path="/dashboard/pages" />
-					<SinglePost path="/post/:id" />
+					<SinglePost path="/portfolio/:id" />
 					<ModelViewer path="/model" />
 					<Ocean path="/ocean" />
 					<Globe path="/globe" />

@@ -40,9 +40,13 @@ const Navbar = () => {
 		}
 	};
 
+	const closeMenuOverlay = ( event ) => {
+		setModalOpen( false );
+	};
+
 	return (
 		<nav className="navbar my-navbar navbar-expand-lg main-navbar">
-			<Link to="/">
+			<Link to="/" onClick={ closeMenuOverlay }>
 				<Logo />
 			</Link>
 			<button className={ buttonClassName } onClick={ toggleMenuOverlay }>
@@ -60,24 +64,37 @@ const Navbar = () => {
 				<div>
 					<ul className="navbar-nav my-navbar-nav mr-auto">
 						<li className="nav-item">
-							<NavLink to="/">Home</NavLink>
+							<NavLink to="/" onClick={ closeMenuOverlay }>
+								Home
+							</NavLink>
 						</li>
 						<li className="nav-item">
-							<NavLink to="/blogs">Blogs</NavLink>
+							<NavLink to="/blogs" onClick={ closeMenuOverlay }>
+								Blogs
+							</NavLink>
 						</li>
 						<li className="nav-item">
-							<NavLink to="/ocean">Ocean</NavLink>
+							<NavLink to="/ocean" onClick={ closeMenuOverlay }>
+								Ocean
+							</NavLink>
 						</li>
 						<li className="nav-item">
-							<NavLink to="/globe">Globe</NavLink>
+							<NavLink to="/globe" onClick={ closeMenuOverlay }>
+								Globe
+							</NavLink>
 						</li>
 						<li className="nav-item">
-							<NavLink to="/model">Model Viewer</NavLink>
+							<NavLink to="/model" onClick={ closeMenuOverlay }>
+								Model Viewer
+							</NavLink>
 						</li>
 						{ isLoggedIn() ? (
 							<React.Fragment>
 								<li className="nav-item">
-									<NavLink to={ `/dashboard ` }>
+									<NavLink
+										to={ `/dashboard ` }
+										onClick={ closeMenuOverlay }
+									>
 										Dashboard
 									</NavLink>
 								</li>
@@ -92,7 +109,12 @@ const Navbar = () => {
 							</React.Fragment>
 						) : (
 							<li className="nav-item">
-								<NavLink to="/login">Login</NavLink>
+								<NavLink
+									to="/login"
+									onClick={ closeMenuOverlay }
+								>
+									Login
+								</NavLink>
 							</li>
 						) }
 					</ul>

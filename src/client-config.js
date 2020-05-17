@@ -1,5 +1,7 @@
+const config = require( '../config' );
+
 const clientConfig = {
-	siteUrl: 'http://localhost:9001',
+	siteUrl: config.wordPressUrl,
 };
 
 export default clientConfig;
