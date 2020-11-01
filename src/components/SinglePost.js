@@ -62,11 +62,11 @@ class SinglePost extends React.Component {
 					/>
 				) }
 				{ Object.keys( post ).length ? (
-					<div className="mt-5 posts-container">
+					<div className="posts-container">
 						<div
 							key={ post.id }
 							className="card border-dark mb-3"
-							style={ { maxWidth: '50rem' } }
+							// style={ { maxWidth: '50rem' } }
 						>
 							<div className="card-header">
 								{ /*Featured Image*/ }

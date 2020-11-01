@@ -34,12 +34,12 @@ void main(){
   vUv = uv;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos,1.);
 }
-`;
+`
 
 export const fragmentShader = `
 precision mediump float;
 
-${ backgroundCoverUv }
+${backgroundCoverUv}
 
 uniform sampler2D uTexture;
 
@@ -67,4 +67,4 @@ void main() {
 
   gl_FragColor = texture;
 }
-`;
+`

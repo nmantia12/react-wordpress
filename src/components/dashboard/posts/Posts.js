@@ -68,7 +68,7 @@ class Posts extends React.Component {
 					/>
 				) }
 				{ posts.length ? (
-					<div className="mt-5 posts-container">
+					<div className="posts-container">
 						{ posts.map( ( post ) => (
 							<div
 								key={ post.id }

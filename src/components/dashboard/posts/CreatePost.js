@@ -71,7 +71,7 @@ class CreatePost extends React.Component {
 			<DashboardLayout>
 				<form
 					onSubmit={ this.handleFormSubmit }
-					className="mt-5"
+					// className="mt-5"
 					style={ { maxWidth: '800px' } }
 				>
 					<legend className="mb-4">Create Post</legend>
