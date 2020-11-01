@@ -112,7 +112,11 @@ body{
     position: relative;
     overflow: hidden;
     width: 55vw;
-    padding-top: 56.5%;
+		padding-top: 100%;
+
+		@include break($tablet) {
+			padding-top: 56.5%;
+		}
   }
 
   img{

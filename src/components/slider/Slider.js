@@ -377,7 +377,7 @@ class Slider extends Component {
 					yPercent: 0,
 				},
 				{
-					yPercent: -( 100 - 100 / titles.length ),
+					yPercent: -100,
 				},
 				0
 			)
@@ -434,7 +434,7 @@ class Slider extends Component {
 		const state = this.state;
 		state.current += ( state.target - state.current ) * this.opts.ease;
 		state.currentRounded = ( state.current * 100 ) / 100;
-		state.diff = ( state.target - state.current ) * 0.0005;
+		state.diff = ( state.target - state.current ) * 0.00125;
 
 		const { items } = this.ui;
 		const {
@@ -442,7 +442,7 @@ class Slider extends Component {
 			left: wrapDiff,
 		} = this.el.current.getBoundingClientRect();
 
-		state.progress = gsap.utils.wrap(
+		state.progress = gsap.utils.clamp(
 			0,
 			1,
 			state.currentRounded /
@@ -450,11 +450,11 @@ class Slider extends Component {
 					state.max +
 						( state.max * ( 1 / items.length ) -
 							wrapWidth * ( 1 / items.length ) -
-							wrapDiff * ( 1 / items.length ) )
-				)
+						wrapDiff * (1 / items.length) )
+			)
 		);
 
-		this.tl && this.tl.progress( state.progress );
+		this.tl && this.tl.progress(state.progress);
 	}
 
 	start() {
@@ -677,7 +677,7 @@ class Slider extends Component {
 							</div>
 						</div>
 
-						<div className="titles faded">
+						{/* <div className="titles faded">
 							<div className="titles__title titles__title--proxy">
 								Lorem ipsum
 							</div>
@@ -692,7 +692,7 @@ class Slider extends Component {
 									</div>
 								) ) }
 							</div>
-						</div>
+						</div> */}
 
 						<div className="progress">
 							<div className="progress__line | js-progress-line"></div>
