@@ -83,6 +83,9 @@ class Plane extends GlObject {
 
 		this.mesh = new THREE.Mesh( this.geo, this.mat );
 		this.mesh.scale.set( this.rect.width, this.rect.height, 1 );
+		this.mesh.position.set(0, (this.rect.height / 2) + 15, 557 );
+		this.gl.camera.position.set(0, (this.rect.height / 2), 1000);
+
 		this.add( this.mesh );
 		this.gl.scene.add( this );
 
@@ -185,10 +188,10 @@ class Slider extends Component {
 	} );
 
 	onWindowResize() {
-		this.gl.camera.left = window.innerWidth / -2;
-		this.gl.camera.right = window.innerWidth / 2;
-		this.gl.camera.top = window.innerHeight / 2;
-		this.gl.camera.bottom = window.innerHeight / -2;
+		// this.gl.camera.left = window.innerWidth / -2;
+		// this.gl.camera.right = window.innerWidth / 2;
+		// this.gl.camera.top = window.innerHeight / 2;
+		this.gl.camera.aspect = window.innerWidth / window.innerHeight;
 		this.gl.camera.updateProjectionMatrix();
 		this.gl.renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -286,6 +289,10 @@ class Slider extends Component {
 		window.addEventListener( move, this.onMove );
 		window.addEventListener( up, this.onUp );
 		this.start();
+
+		var theta = Math.PI * (this.gl.parameters.inclination - 0.5);
+		var phi = 2 * Math.PI * - 0.5;
+		this.updateSun(phi, theta);
 	}
 
 	off() {
@@ -454,6 +461,11 @@ class Slider extends Component {
 			)
 		);
 
+		// update sun
+		var theta = Math.PI * (this.gl.parameters.inclination - 0.5);
+		var phi = 2 * Math.PI * (((state.progress * 1.2) / 2) - 0.5);
+		this.updateSun(phi, theta);
+
 		this.tl && this.tl.progress(state.progress);
 	}
 
@@ -469,7 +481,8 @@ class Slider extends Component {
 
 	animate() {
 		this.frameId = requestAnimationFrame( this.animate );
-		this.gl.renderer.render( this.gl.scene, this.gl.camera );
+		this.gl.water.material.uniforms['time'].value += 1.0 / 60.0;
+		this.gl.renderer.render(this.gl.scene, this.gl.camera);
 		this.calc();
 		this.transformItems();
 	}
@@ -494,11 +507,11 @@ class Slider extends Component {
 				item.out = true;
 			}
 
-			if ( flags.dragging == false && ( Math.round( translate ) == Math.round( this.state.target ) ) ) {
-				setTimeout(() => {
-					this.stop();
-				}, 500 );
-			}
+			// if ( flags.dragging == false && ( Math.round( translate ) == Math.round( this.state.target ) ) ) {
+			// 	setTimeout(() => {
+			// 		this.stop();
+			// 	}, 500 );
+			// }
 		}
 	}
 
@@ -549,7 +562,6 @@ class Slider extends Component {
 		flags.dragging = true;
 		on.x = x;
 		on.y = y;
-		this.start();
 	}
 
 	closest() {
@@ -576,6 +588,18 @@ class Slider extends Component {
 		return {
 			closest,
 		};
+	}
+
+	updateSun(phi, theta) {
+		// this.gl.light.position.x = this.gl.parameters.distance * Math.cos(phi);
+		// this.gl.light.position.y = this.gl.parameters.distance * Math.sin(phi) * Math.sin(theta);
+		// this.gl.light.position.z = this.gl.parameters.distance * Math.sin(phi) * Math.cos(theta);
+
+		// this.gl.sky.material.uniforms['sunPosition'].value = this.gl.light.position.copy(this.gl.light.position);
+		// this.gl.water.material.uniforms['sunDirection'].value.copy(this.gl.light.position).normalize();
+
+		// this.gl.cubeCamera.update(this.gl.renderer, this.gl.sky);
+
 	}
 
 	onUp() {
@@ -624,7 +648,7 @@ class Slider extends Component {
 				{ this._isMounted && posts.length ? (
 					<div
 						className="slider-wrap"
-						style={ { background: bgColor } }
+						// style={ { background: bgColor } }
 					>
 						<div className="slider | js-drag-area">
 							<div

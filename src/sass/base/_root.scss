@@ -2,20 +2,20 @@
 	min-height: 100vh;
 	position: relative;
 }
-#root:after {
-  animation: grain 8s steps(10) infinite;
-  background-image: url("http://fariskassim.com/stage/codepenstuff/noise.png");
-  content: "";
-  height: 300%;
-  left: -50%;
-  opacity: 0.3;
-  position: fixed;
-	top: -100%;
-	pointer-events: none;
-	user-select: none;
-	width: 300%;
-	z-index: 999;
-}
+// #root:after {
+//   animation: grain 8s steps(10) infinite;
+//   background-image: url("http://fariskassim.com/stage/codepenstuff/noise.png");
+//   content: "";
+//   height: 300%;
+//   left: -50%;
+//   opacity: 0.3;
+//   position: fixed;
+// 	top: -100%;
+// 	pointer-events: none;
+// 	user-select: none;
+// 	width: 300%;
+// 	z-index: 999;
+// }
 
 @keyframes grain {
   0%, 100% { transform:translate(0, 0) }

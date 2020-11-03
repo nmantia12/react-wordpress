@@ -29,7 +29,9 @@ class Home extends React.Component {
 		return (
 			<React.Fragment>
 				<Navbar />
-				<Slider />
+				<div className="page-content">
+					<Slider />
+				</div>
 			</React.Fragment>
 		);
 	}

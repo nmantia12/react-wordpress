@@ -5,20 +5,8 @@ $easeOutExpo: cubic-bezier(0.190, 1.000, 0.220, 1.000);
 	transition: all .5s ease;
 }
 
-body{
-  position: relative;
-  overflow: hidden;
-  background-color: #111;
-  font-family: 'helvetica neue', sans-serif;
-}
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-.head{
+.head {
   position: fixed;
   top: 0;
   left: 0;
@@ -33,7 +21,7 @@ body{
     display: flex;
   }
 
-  a{
+  a {
     position: relative;
     color: #fff;
     text-decoration: none;
@@ -70,7 +58,7 @@ body{
   }
 }
 
-.dom-gl{
+.dom-gl {
   position: fixed;
   top: 0;
   left: 0;
@@ -86,19 +74,18 @@ body{
   align-items: center;
   height: 100%;
   user-select: none;
-  cursor: grab;
   z-index: 2;
 
-  &__inner{
+  &__inner {
     display: flex;
     position: relative;
   }
 }
 
-.slide{
+.slide {
   overflow: hidden;
 
-  &:first-child{
+  &:first-child {
     position: relative;
   }
 
@@ -108,7 +95,7 @@ body{
     height: 100%;
   }
 
-  &__inner{
+  &__inner {
     position: relative;
     overflow: hidden;
     width: 55vw;
@@ -119,7 +106,7 @@ body{
 		}
   }
 
-  img{
+  img {
     display: none;
 
     /*
@@ -172,6 +159,10 @@ body{
 		text-overflow: ellipsis;
 		text-align: left;
 		transition: all .5s ease;
+		margin: 0 auto;
+		max-width: 70vw;
+		padding-right: 15vw;
+		// text-shadow: 5px 5px 15px rgba(0,0,0,.4);
 
     &--proxy{
       visibility: hidden;

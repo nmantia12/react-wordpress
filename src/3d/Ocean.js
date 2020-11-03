@@ -61,10 +61,10 @@ class Ocean extends Component {
 				} ),
 				alpha: 1.0,
 				sunDirection: this.light.position.clone().normalize(),
-				// sunColor: 0xffffff,
-				// waterColor: 0x001e0f,
-				sunColor: 0xdf86b6,
-				waterColor: 0xdf86b6,
+				sunColor: 0xffffff,
+				waterColor: 0x001e0f,
+				// sunColor: 0xdf86b6,
+				// waterColor: 0xdf86b6,
 				distortionScale: 3.7,
 				fog: scene.fog !== undefined
 			}

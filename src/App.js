@@ -14,11 +14,14 @@ import Posts from './components/dashboard/posts/Posts';
 import Pages from './components/dashboard/pages/Pages';
 import Blogs from './components/Blogs';
 import Page from './components/Page';
+import Cursor from './components/cursor/Cursor';
 
 class App extends React.Component {
+	init() {}
 	render() {
 		return (
 			<AppProvider>
+				<Cursor />
 				<Router id="global_router">
 					<Home path="/" />
 					<Blogs path="/blogs/" />
