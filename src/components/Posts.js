@@ -5,6 +5,7 @@ import Loader from "./layouts/Loader";
 import { Post } from "./layouts/Post";
 import { Pagination } from "./layouts/Pagination";
 import PostLoader from "./layouts/PostLoader";
+import Spinner from '../loader.gif';
 
 export const Posts = ( props ) => {
 
@@ -37,6 +38,7 @@ export const Posts = ( props ) => {
 			} )
 			.catch( err => {
 				setError( err.response.data.message );
+				setLoading(false);
 			} );
 
 	}, [currentPage] );
@@ -47,7 +49,12 @@ export const Posts = ( props ) => {
 
 	return (
 		<React.Fragment>
-			{ loading ? <PostLoader/> : '' }
+			{/* { loading ? <PostLoader/> : '' } */}
+			{ loading && (
+				<div className="loader-wrap">
+					<img className="loader" src={Spinner} alt="Loader" />
+				</div>
+			)}
 			<div className="container blog" style={ { overflow: 'hidden' } }>
 				{ ( !loading && null !== posts && posts.length ) ? (
 					<React.Fragment>

@@ -326,3 +326,101 @@ figure {
 	margin: 0;
 	max-width: 100%;
 }
+
+/**
+ * Editor Normalization Styles
+ *
+ * These are only output in the editor, but styles here are prefixed .editor-styles-wrapper and affect the theming
+ * of the editor by themes.
+ * Why do these exist? Why not rely on browser defaults?
+ * These styles are necessary so long as CSS can bleed from the wp-admin into the editing canvas itself.
+ * Let's continue working to refactor these away, whether through Shadow DOM or better scoping of upstream styles.
+ */
+
+
+
+// For full-wide blocks, we compensate for these 10px.
+.block-editor-block-list__layout.is-root-container > .wp-block[data-align="full"] {
+	margin-left: -10px;
+	margin-right: -10px;
+}
+
+
+$default-block-margin: 20px;
+$content-width: 800px;
+
+.alignwide,
+.alignfull {
+	margin: 0 auto;
+	max-width: 100%;
+	width: 100%;
+}
+
+@include break($tablet) {
+	.alignwide {
+		max-width: $content-width;
+		width: $content-width;
+	}
+}
+.wp-align-wrapper {
+	max-width: $content-width;
+
+	> .wp-block,
+	&.wp-align-full {
+		max-width: none;
+	}
+
+	&.wp-align-wide {
+		max-width: $content-width;
+	}
+}
+
+code,
+kbd {
+	padding: 0;
+	margin: 0;
+	background: inherit;
+	font-size: inherit;
+	font-family: monospace;
+}
+
+.aligncenter,.alignleft,.alignright {
+    display: block;
+    padding: 0;
+}
+
+.aligncenter {
+    float: none;
+    margin: .5em auto 1em;
+}
+
+.alignright {
+    float: right;
+    margin: .5em 0 1em 1em;
+}
+
+.alignleft {
+    float: left;
+    margin: .5em 1em 1em 0;
+}
+
+.wp-caption {
+    padding: 5px 0;
+    border: 1px solid #555;
+    background: #444;
+    text-align: center;
+}
+
+.wp-caption img {
+    display: inline;
+}
+
+.wp-caption p.wp-caption-text {
+    margin: 5px 0 0;
+    padding: 0;
+    text-align: center;
+    font-size: 75%;
+    font-weight: 100;
+    font-style: italic;
+    color: #ddd;
+}

@@ -1,21 +1,33 @@
-import React, { useContext } from 'react';
-import Navbar from "../Navbar";
-import AppContext from "../context/AppContext";
+import React, { Component, useContext } from 'react';
+import Navbar from '../Navbar';
+// import AppContext from '../context/AppContext';
+import Cursor from '../../components/cursor/Cursor';
 
-const Content = ( props ) => {
+class Content extends React.Component {
+	// const [ store, setStore ] = useContext( AppContext );
+	constructor(props) {
+		super(props);
+	}
 
-	const [ store, setStore ] = useContext( AppContext );
+	render() {
+		const props = this.props;
+		return (
+			<React.Fragment>
+				<div
+					id="content"
+				// className={ store.sidebarActive ? 'sidebar-active' : '' }
+				>
+					{ /* Cursor */}
+					<Cursor />
+					{ /* Top Navbar */}
+					<Navbar />
+					{ /* Main Content */}
+					{props.children}
+				</div>
+			</React.Fragment>
+		);
+	}
 
-	return (
-		<div id="content" className={ store.sidebarActive ? '' : 'active' }>
-			{/* Top Navbar */}
-			<Navbar/>
-			{/* Main Content */}
-			<div className="main-content">
-				{ props.children }
-			</div>
-		</div>
-	)
 };
 
 export default Content;

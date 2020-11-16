@@ -1,27 +1,30 @@
-
 /* Resets */
-@import "base/body";
+@import "base/colors";
+@import "base/mixins";
 @import "base/reset";
 @import "base/normalize";
-@import "base/root";
-@import "base/mixins";
+
+/* Variables */
+
 
 /* Typography */
 @import "base/typography";
+
+/* Base */
+@import "base/root";
+@import "base/body";
+@import "base/transitions";
 @import "base/card";
 @import "base/img";
-@import "base/modelViewer";
-
-/* Variables */
-// @import "abstracts/variables";
 
 /* Components */
 // @import "components/buttons";
+@import "components/header";
+@import "components/slider";
+@import "components/cursor";
+@import "components/modelViewer";
+@import "components/singlePost";
 
-/* Layouts */
-@import "layout/header";
-@import "layout/slider";
-@import "layout/cursor";
 // @import "layouts/footer";
 
 /* Pages */

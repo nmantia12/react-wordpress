@@ -15,7 +15,7 @@ const NavLink = ( props ) => (
 	<Link
 		{ ...props }
 		getProps={ ( { isCurrent } ) => ( {
-			style: { color: isCurrent ? '#fff' : '#fffc' },
+			style: { color: isCurrent ? '#fff' : '#fff' },
 		} ) }
 		className="nav-link"
 	/>

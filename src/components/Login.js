@@ -1,27 +1,26 @@
 import React, { useContext, useState } from 'react';
-import Navbar from "./Navbar";
-import { Redirect } from "@reach/router";
-import Loader from "../loader.gif";
+import Content from './content/Content';
+import { Redirect } from '@reach/router';
+import Loader from '../loader.gif';
 import axios from 'axios';
 import clientConfig from '../client-config';
-import AppContext from "./context/AppContext";
+import AppContext from './context/AppContext';
 
-const Login = () =>  {
-
+const Login = () => {
 	const [ store, setStore ] = useContext( AppContext );
 
-	const [ loginFields, setLoginFields ] = useState({
+	const [ loginFields, setLoginFields ] = useState( {
 		username: '',
 		password: '',
 		userNiceName: '',
 		userEmail: '',
 		loading: false,
-		error: ''
-	});
+		error: '',
+	} );
 
-	const createMarkup = ( data ) => ({
-		__html: data
-	});
+	const createMarkup = ( data ) => ( {
+		__html: data,
+	} );
 
 	const onFormSubmit = ( event ) => {
 		event.preventDefault();
@@ -35,15 +34,15 @@ const Login = () =>  {
 
 		setLoginFields( { ...loginFields, loading: true } );
 
-		axios.post( `${siteUrl}/wp-json/jwt-auth/v1/token`, loginData )
-			.then( res => {
-
+		axios
+			.post( `${ siteUrl }/wp-json/jwt-auth/v1/token`, loginData )
+			.then( ( res ) => {
 				if ( undefined === res.data.token ) {
 					setLoginFields( {
 						...loginFields,
 						error: res.data.message,
-						loading: false }
-						);
+						loading: false,
+					} );
 					return;
 				}
 
@@ -52,11 +51,11 @@ const Login = () =>  {
 				localStorage.setItem( 'token', token );
 				localStorage.setItem( 'userName', user_nicename );
 
-				setStore({
+				setStore( {
 					...store,
 					userName: user_nicename,
-					token: token
-				});
+					token: token,
+				} );
 
 				setLoginFields( {
 					...loginFields,
@@ -64,58 +63,89 @@ const Login = () =>  {
 					token: token,
 					userNiceName: user_nicename,
 					userEmail: user_email,
-				} )
+				} );
 			} )
-			.catch( err => {
-				setLoginFields( { ...loginFields, error: err.response.data.message, loading: false } );
-			} )
+			.catch( ( err ) => {
+				setLoginFields( {
+					...loginFields,
+					error: err.response.data.message,
+					loading: false,
+				} );
+			} );
 	};
 
 	const handleOnChange = ( event ) => {
-		setLoginFields( { ...loginFields, [event.target.name]: event.target.value } );
+		setLoginFields( {
+			...loginFields,
+			[ event.target.name ]: event.target.value,
+		} );
 	};
-
 
 	const { username, password, userNiceName, error, loading } = loginFields;
 
 	if ( store.token ) {
-		return ( <Redirect to={`/dashboard`} noThrow /> )
+		return <Redirect to={ `/dashboard` } noThrow />;
 	} else {
 		return (
 			<React.Fragment>
-				<Navbar/>
-				<div style={{ height: '100vh', maxWidth: '400px', margin: '0 auto' }}>
-					<h4 className="mb-4">Login</h4>
-					{ error && <div className="alert alert-danger" dangerouslySetInnerHTML={ createMarkup( error ) }/> }
-					<form onSubmit={ onFormSubmit }>
-						<label className="form-group">
-							Username:
-							<input
-								type="text"
-								className="form-control"
-								name="username"
-								value={ username }
-								onChange={ handleOnChange }
+				<Content>
+					<div
+						style={ {
+							height: '100vh',
+							maxWidth: '400px',
+							margin: '0 auto',
+						} }
+					>
+						<h4 className="mb-4">Login</h4>
+						{ error && (
+							<div
+								className="alert alert-danger"
+								dangerouslySetInnerHTML={ createMarkup(
+									error
+								) }
 							/>
-						</label>
-						<br/>
-						<label className="form-group">
-							Password:
-							<input
-								type="password"
-								className="form-control"
-								name="password"
-								value={ password }
-								onChange={ handleOnChange }
-							/>
-						</label>
-						<br/>
-						<button className="btn btn-primary mb-3" type="submit">Login</button>
-						{ loading && <img className="loader" src={Loader} alt="Loader"/> }
-					</form>
-				</div>
+						) }
+						<form onSubmit={ onFormSubmit }>
+							<label className="form-group">
+								Username:
+								<input
+									type="text"
+									className="form-control"
+									name="username"
+									value={ username }
+									onChange={ handleOnChange }
+								/>
+							</label>
+							<br />
+							<label className="form-group">
+								Password:
+								<input
+									type="password"
+									className="form-control"
+									name="password"
+									value={ password }
+									onChange={ handleOnChange }
+								/>
+							</label>
+							<br />
+							<button
+								className="btn btn-primary mb-3"
+								type="submit"
+							>
+								Login
+							</button>
+							{ loading && (
+								<img
+									className="loader"
+									src={ Loader }
+									alt="Loader"
+								/>
+							) }
+						</form>
+					</div>
+				</Content>
 			</React.Fragment>
-		)
+		);
 	}
 };
 

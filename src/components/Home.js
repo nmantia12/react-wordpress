@@ -1,6 +1,7 @@
 import React from 'react';
-import Navbar from './Navbar';
 import Slider from './slider/Slider';
+import Content from './content/Content';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 class Home extends React.Component {
 	constructor( props ) {
@@ -28,10 +29,13 @@ class Home extends React.Component {
 	render() {
 		return (
 			<React.Fragment>
-				<Navbar />
-				<div className="page-content">
-					<Slider />
-				</div>
+				<TransitionGroup className="page-transition">
+					<CSSTransition classNames="fade" timeout={ 500 }>
+						<Content>
+							<Slider />
+						</Content>
+					</CSSTransition>
+				</TransitionGroup>
 			</React.Fragment>
 		);
 	}

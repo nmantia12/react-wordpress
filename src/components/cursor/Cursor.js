@@ -24,6 +24,11 @@ class Cursor extends React.Component {
 		this._isMounted = false;
 	}
 
+	onWindowResize( ) {
+		this.canvas.width = window.innerWidth;
+		this.canvas.height = window.innerHeight;
+	}
+
 	initCursor() {
 		this.clientX = -100;
 		this.clientY = -100;
@@ -48,6 +53,9 @@ class Cursor extends React.Component {
 			this.clientY = e.clientY;
 		} );
 
+		this.onWindowResize = this.onWindowResize.bind( this );
+		window.addEventListener( 'resize', this.onWindowResize );
+
 		const renderCursor = () => {
 			TweenMax.set( this.innerCursor, {
 				x: this.clientX,
@@ -63,16 +71,17 @@ class Cursor extends React.Component {
 
 	initCanvas() {
 		const canvas = document.querySelector( '.circle-cursor--outer' );
+		this.canvas = canvas;
 		const shapeBounds = {
-			width: 75,
-			height: 75,
+			width: 100,
+			height: 100,
 		};
 
-		paper.setup( canvas );
+		paper.setup( this.canvas );
 
-		const strokeColor = 'rgba(255, 0, 0, 0.5)';
+		const strokeColor = 'rgba(6, 244, 244, 0.5)';
 		const strokeWidth = 2;
-		const segments = 16;
+		const segments = 8;
 		const radius = 30;
 		const noiseScale = 150; // speed
 		const noiseRange = 4; // range of distortion
@@ -86,6 +95,7 @@ class Cursor extends React.Component {
 		polygon.strokeColor = strokeColor;
 		polygon.strokeWidth = strokeWidth;
 		polygon.smooth();
+		this.polygon = polygon;
 
 		this.group = new paper.Group( [ polygon ] );
 		this.group.applyMatrix = false;
@@ -198,7 +208,7 @@ class Cursor extends React.Component {
 				! this.fillOuterCursor &&
 				polygon.fillColor !== 'transparent'
 			) {
-				polygon.strokeColor = 'rgba(255, 0, 0, 0.5)';
+				polygon.strokeColor = 'rgba(6, 244, 244, 0.5)';
 				polygon.fillColor = 'transparent';
 			}
 
@@ -238,7 +248,7 @@ class Cursor extends React.Component {
 			TweenMax.to( this.innerCursor, 0.2, { opacity: 1 } );
 		};
 
-		const linkItems = document.querySelectorAll( '.page-content a' );
+		const linkItems = document.querySelectorAll( '#content a' );
 		linkItems.forEach( ( item ) => {
 			item.addEventListener( 'mouseenter', linkItemMouseEnter );
 			item.addEventListener( 'mouseleave', linkItemMouseLeave );

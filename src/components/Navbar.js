@@ -3,20 +3,32 @@ import NavLink from './NavLink';
 import { Link } from '@reach/router';
 import { isLoggedIn } from './functions';
 import ToggleSidebarBtn from './dashboard/sidebar/ToggleSidebarBtn';
-import AppContext from './context/AppContext';
+// import AppContext from './context/AppContext';
 import Logo from './layouts/Logo';
+import { motion } from 'framer-motion';
+
+const transition = {
+	duration: 0.6,
+	ease: [ 0.6, 0.01, -0.05, 0.9 ],
+};
+
+const variants = {
+	open: {
+		opacity: 1,
+		pointerEvents: 'auto',
+	},
+	closed: {
+		opacity: 0,
+		pointerEvents: 'none',
+	},
+};
 
 const Navbar = () => {
-	const [ store, setStore ] = useContext( AppContext );
-	const [ modalOpen, setModalOpen ] = useState( false );
+	// const [ store, setStore ] = useContext( AppContext );
+	const [ isOpen, setIsOpen ] = useState( false );
 
-	let buttonClassName = 'hamburger-wrapper';
-	let overlayClassname = 'menu-overlay';
-
-	if ( modalOpen ) {
-		buttonClassName = 'hamburger-wrapper active';
-		overlayClassname = 'menu-overlay active';
-	}
+	const buttonClassName = 'hamburger-wrapper';
+	const overlayClassname = 'menu-overlay';
 
 	const handleLogout = () => {
 		localStorage.removeItem( 'token' );
@@ -30,26 +42,17 @@ const Navbar = () => {
 		window.location.href = '/';
 	};
 
-	const toggleMenuOverlay = ( event ) => {
-		event.preventDefault();
-
-		if ( modalOpen ) {
-			setModalOpen( false );
-		} else {
-			setModalOpen( true );
-		}
-	};
-
-	const closeMenuOverlay = ( event ) => {
-		setModalOpen( false );
-	};
-
 	return (
 		<nav className="navbar my-navbar navbar-expand-lg main-navbar">
-			<Link to="/" onClick={ closeMenuOverlay }>
+			<Link to="/">
 				<Logo />
 			</Link>
-			<button className={ buttonClassName } onClick={ toggleMenuOverlay }>
+			<button
+				className={
+					isOpen ? 'hamburger-wrapper active' : 'hamburger-wrapper'
+				}
+				onClick={ () => setIsOpen( ! isOpen ) }
+			>
 				<span className="hamburger" />
 			</button>
 
@@ -60,41 +63,35 @@ const Navbar = () => {
 				''
 			) }
 
-			<div className={ overlayClassname }>
+			<motion.div
+				initial={ { closed } }
+				exit={ { closed } }
+				transition={ { transition } }
+				animate={ isOpen ? 'open' : 'closed' }
+				className={ isOpen ? 'menu-overlay active' : 'menu-overlay' }
+				variants={ variants }
+			>
 				<div>
 					<ul className="navbar-nav my-navbar-nav mr-auto">
 						<li className="nav-item">
-							<NavLink to="/" onClick={ closeMenuOverlay }>
-								Home
-							</NavLink>
+							<NavLink to="/">Home</NavLink>
 						</li>
 						<li className="nav-item">
-							<NavLink to="/blogs" onClick={ closeMenuOverlay }>
-								Blogs
-							</NavLink>
+							<NavLink to="/blogs">Blogs</NavLink>
 						</li>
 						<li className="nav-item">
-							<NavLink to="/ocean" onClick={ closeMenuOverlay }>
-								Ocean
-							</NavLink>
+							<NavLink to="/ocean">Ocean</NavLink>
 						</li>
 						<li className="nav-item">
-							<NavLink to="/globe" onClick={ closeMenuOverlay }>
-								Globe
-							</NavLink>
+							<NavLink to="/globe">Globe</NavLink>
 						</li>
 						<li className="nav-item">
-							<NavLink to="/model" onClick={ closeMenuOverlay }>
-								Model Viewer
-							</NavLink>
+							<NavLink to="/model">Model Viewer</NavLink>
 						</li>
 						{ isLoggedIn() ? (
 							<React.Fragment>
 								<li className="nav-item">
-									<NavLink
-										to={ `/dashboard ` }
-										onClick={ closeMenuOverlay }
-									>
+									<NavLink to={ `/dashboard ` }>
 										Dashboard
 									</NavLink>
 								</li>
@@ -109,17 +106,12 @@ const Navbar = () => {
 							</React.Fragment>
 						) : (
 							<li className="nav-item">
-								<NavLink
-									to="/login"
-									onClick={ closeMenuOverlay }
-								>
-									Login
-								</NavLink>
+								<NavLink to="/login">Login</NavLink>
 							</li>
 						) }
 					</ul>
 				</div>
-			</div>
+			</motion.div>
 		</nav>
 	);
 };

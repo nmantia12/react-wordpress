@@ -4,7 +4,12 @@ import waterNormal from '../../assets/waternormals.jpg';
 class Gl {
 	constructor() {
 		this.scene = new THREE.Scene();
-		var camera = new THREE.PerspectiveCamera(90, store.ww / store.wh, 1, 2000);
+		const camera = new THREE.PerspectiveCamera(
+			90,
+			store.ww / store.wh,
+			1,
+			1000
+		);
 		this.camera = camera;
 
 		this.parameters = {
@@ -17,42 +22,42 @@ class Gl {
 			antialias: true,
 		} );
 
-		this.renderer.setPixelRatio( 1 );
+		// this.renderer.setPixelRatio( 1 );
 		this.renderer.setSize( store.ww, store.wh );
-		this.renderer.setClearColor(0x000000, 1 );
+		this.renderer.setClearColor( 0x111111, 1 );
 		this.init();
 	}
 
 	init() {
 		const domEl = this.renderer.domElement;
 		domEl.classList.add( 'dom-gl' );
+		this.domEl = domEl;
 
-		const white = new THREE.Color(0xffffff);
-		const black = new THREE.Color(0x000000);
-		const charcoal = new THREE.Color(0x001e0f);
+		const white = new THREE.Color( 0xffffff );
+		const black = new THREE.Color( 0x111111 );
+		const charcoal = new THREE.Color(0x111111 );
 		// this.scene.background = charcoal;
 
 		const fogColor = black;
 		const density = 0.001;
-		this.scene.fog = new THREE.FogExp2(fogColor, density);
+		this.scene.fog = new THREE.FogExp2( fogColor, density );
 
-		var waterGeometry = new THREE.PlaneBufferGeometry(10000, 10000);
+		const waterGeometry = new THREE.PlaneBufferGeometry( 10000, 10000 );
 
-		var water = new THREE.Water(
-			waterGeometry,
-			{
-				textureWidth: 512,
-				textureHeight: 512,
-				waterNormals: new THREE.TextureLoader().load(waterNormal, function (texture) {
-					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-				}),
-				alpha: .8,
-				sunColor: charcoal,
-				waterColor: black,
-				distortionScale: 3.7,
-				fog: this.scene.fog !== undefined
-			}
-		);
+		const water = new THREE.Water( waterGeometry, {
+			textureWidth: 512,
+			textureHeight: 512,
+			waterNormals: new THREE.TextureLoader().load( waterNormal, function(
+				texture
+			) {
+				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+			} ),
+			alpha: 0.8,
+			sunColor: charcoal,
+			waterColor: black,
+			distortionScale: 3.7,
+			fog: this.scene.fog !== undefined,
+		} );
 
 		water.material.uniforms.size.value = 0.1;
 		water.rotation.x = -Math.PI / 2;
@@ -75,9 +80,6 @@ class Gl {
 		// cubeCamera.renderTarget.texture.generateMipmaps = true;
 		// cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipmapLinearFilter;
 		// this.cubeCamera = cubeCamera;
-
-		document.body.appendChild( domEl );
-
 	}
 }
 

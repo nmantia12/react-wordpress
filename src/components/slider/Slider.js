@@ -1,18 +1,18 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react';
+import { navigate } from '@reach/router';
 import { gsap, Power0 } from 'gsap';
 import axios from 'axios';
 import Spinner from '../../loader.gif';
 import DefaultImg from '../../default.png';
-// import FeaturedImage from '../layouts/FeaturedImage';
-// import renderHTML from 'react-render-html';
-// import Moment from 'react-moment';
-// import { Link } from '@reach/router';
 import clientConfig from '../../client-config';
 import { store } from './Store';
 import { vertexShader, fragmentShader } from './Shaders';
-import { TweenLite } from 'gsap';
 import Gl from './Gl';
+import lottie from 'lottie-web';
+import animationData from '../../data.json';
+
+let animObj = null;
 
 const loader = new THREE.TextureLoader();
 loader.crossOrigin = 'anonymous';
@@ -50,12 +50,15 @@ const planeMat = new THREE.ShaderMaterial( {
 	fragmentShader,
 	vertexShader,
 } );
+const raycaster = new THREE.Raycaster();
 
 class Plane extends GlObject {
 	init( el, gl ) {
 		super.init( el, gl );
 		this.gl = gl;
 		this.geo = geometry;
+		this.url = null;
+		this.post = [];
 		this.mat = planeMat.clone();
 
 		this.mat.uniforms = {
@@ -83,8 +86,8 @@ class Plane extends GlObject {
 
 		this.mesh = new THREE.Mesh( this.geo, this.mat );
 		this.mesh.scale.set( this.rect.width, this.rect.height, 1 );
-		this.mesh.position.set(0, (this.rect.height / 2) + 15, 557 );
-		this.gl.camera.position.set(0, (this.rect.height / 2), 1000);
+		this.mesh.position.set( 0, this.rect.height / 2 + 15, 534 );
+		this.gl.camera.position.set( 0, this.rect.height / 2, 1000 );
 
 		this.add( this.mesh );
 		this.gl.scene.add( this );
@@ -96,6 +99,8 @@ class Plane extends GlObject {
 	onWindowResize() {
 		this.resize();
 		this.mesh.scale.set( this.rect.width, this.rect.height, 1 );
+		// this.mesh.position.set( 0, this.rect.height / 2 + 15, 557 );
+		// this.gl.camera.position.set( 0, this.rect.height / 2, 1000 );
 	}
 }
 
@@ -141,7 +146,7 @@ class Slider extends Component {
 		};
 
 		this.animate = this.animate.bind( this );
-
+		this.mouse = new THREE.Vector2();
 		this.state = {
 			loading: false,
 			bgColor: '#111',
@@ -168,11 +173,18 @@ class Slider extends Component {
 			flags: {
 				dragging: false,
 			},
+			counter: 0,
+			timerID: '',
+			pressHoldDuration: 60,
+			intersected: '',
+			selectedPost: '',
+			activeItemIndex: 0,
 		};
 
 		this.colors = [];
 		this.titleColors = [];
 		this.items = [];
+		this.planes = [];
 
 		this.events = {
 			move: store.isDevice ? 'touchmove' : 'mousemove',
@@ -180,6 +192,8 @@ class Slider extends Component {
 			down: store.isDevice ? 'touchstart' : 'mousedown',
 		};
 
+		this.onComplete = this.onComplete.bind(this);
+		this.timer = this.timer.bind( this );
 		this.onWindowResize = this.onWindowResize.bind( this );
 	}
 
@@ -208,6 +222,24 @@ class Slider extends Component {
 		this._isMounted = true;
 
 		if ( this._isMounted ) {
+			const canvasEl = document.querySelector( '#slide_canvas' );
+			canvasEl.appendChild( this.gl.domEl );
+			this.canvasEl = canvasEl;
+
+			//call the loadAnimation to start the animation
+			animObj = lottie.loadAnimation({
+				container: this.animBox, // the dom element that will contain the animation
+				renderer: 'svg',
+				loop: false,
+				autoplay: false,
+				animationData: animationData,
+				rendererSettings: {
+					preserveAspectRatio: 'none', // Supports the same options as the svg element's preserveAspectRatio property
+					className: 'page-wipe',
+					// id: 'some-id',
+				}
+			});
+
 			this.setState( { loading: true }, () => {
 				axios
 					.get(
@@ -244,7 +276,7 @@ class Slider extends Component {
 					} )
 					.catch( ( err ) => {
 						if ( this._isMounted ) {
-							console.log( err );
+							console.warn( err );
 							this.setState( { loading: false, error: err } );
 						}
 					} );
@@ -256,11 +288,8 @@ class Slider extends Component {
 		this._isMounted = false;
 		this.stop();
 		this.destroy();
-		document.body.removeChild( this.gl.renderer.domElement );
-		this.gl.renderer.forceContextLoss();
-		this.gl.renderer.context = null;
-		this.gl.renderer.domElement = null;
-		this.gl.renderer = null;
+		this.canvasEl.removeChild( this.gl.renderer.domElement );
+
 	}
 
 	bindAll() {
@@ -277,6 +306,7 @@ class Slider extends Component {
 		this.off();
 		this.state = null;
 		this.items = null;
+		this.planes = null;
 		this.opts = null;
 		this.ui = null;
 	}
@@ -288,11 +318,12 @@ class Slider extends Component {
 		window.addEventListener( down, this.onDown );
 		window.addEventListener( move, this.onMove );
 		window.addEventListener( up, this.onUp );
+
 		this.start();
 
-		var theta = Math.PI * (this.gl.parameters.inclination - 0.5);
-		var phi = 2 * Math.PI * - 0.5;
-		this.updateSun(phi, theta);
+		// const theta = Math.PI * ( this.gl.parameters.inclination - 0.5 );
+		// const phi = 2 * Math.PI * -0.5;
+		// this.updateSun( phi, theta );
 	}
 
 	off() {
@@ -334,12 +365,11 @@ class Slider extends Component {
 			const { left, right, width } = el.getBoundingClientRect();
 
 			// Push to cache
-			this.items[i].left = left;
-			this.items[i].right = right;
-			this.items[i].width = width;
-			this.items[i].min = window.innerWidth * 0.775;
-			this.items[i].max = state.max - window.innerWidth * 0.775;
-
+			this.items[ i ].left = left;
+			this.items[ i ].right = right;
+			this.items[ i ].width = width;
+			this.items[ i ].min = window.innerWidth * 0.775;
+			this.items[ i ].max = state.max - window.innerWidth * 0.775;
 		}
 	}
 
@@ -413,14 +443,20 @@ class Slider extends Component {
 			const tl = gsap.timeline( { paused: true } ).fromTo(
 				plane.mat.uniforms.uScale,
 				{
-					value: 0.15,
+					value: 0.5,
 				},
 				{
-					value: 1,
-					duration: 1,
+					value: 1.56,
 					ease: 'linear',
 				}
 			);
+
+			const url = el.getAttribute( 'data-url' );
+			plane.url = url;
+			plane.post = state.posts[ i ];
+
+			const mesh = plane.mesh;
+			this.planes.push( mesh );
 
 			// Push to cache
 			this.items.push( {
@@ -457,16 +493,16 @@ class Slider extends Component {
 					state.max +
 						( state.max * ( 1 / items.length ) -
 							wrapWidth * ( 1 / items.length ) -
-						wrapDiff * (1 / items.length) )
-			)
+							wrapDiff * ( 1 / items.length ) )
+				)
 		);
 
 		// update sun
-		var theta = Math.PI * (this.gl.parameters.inclination - 0.5);
-		var phi = 2 * Math.PI * (((state.progress * 1.2) / 2) - 0.5);
-		this.updateSun(phi, theta);
+		// const theta = Math.PI * ( this.gl.parameters.inclination - 0.5 );
+		// const phi = 2 * Math.PI * ( ( state.progress * 1.2 ) / 2 - 0.5 );
+		// this.updateSun( phi, theta );
 
-		this.tl && this.tl.progress(state.progress);
+		this.tl && this.tl.progress( state.progress );
 	}
 
 	start() {
@@ -481,8 +517,8 @@ class Slider extends Component {
 
 	animate() {
 		this.frameId = requestAnimationFrame( this.animate );
-		this.gl.water.material.uniforms['time'].value += 1.0 / 60.0;
-		this.gl.renderer.render(this.gl.scene, this.gl.camera);
+		this.gl.water.material.uniforms.time.value += 1.0 / 60.0;
+		this.gl.renderer.render( this.gl.scene, this.gl.camera );
 		this.calc();
 		this.transformItems();
 	}
@@ -494,7 +530,7 @@ class Slider extends Component {
 			const item = this.items[ i ];
 			const { translate, isVisible, progress } = this.isVisible( item );
 
-			item.plane.updateX(translate);
+			item.plane.updateX( translate );
 			item.plane.mat.uniforms.uVelo.value = this.state.diff;
 
 			if ( ! item.out && item.tl ) {
@@ -555,13 +591,66 @@ class Slider extends Component {
 		};
 	}
 
+	onComplete() {
+		const state = this.state;
+		this.animBox.style.opacity = 0;
+
+		navigate(state.intersected, {
+			state: { post: state.selectedPost },
+		});
+	}
+
+	timer() {
+		const state = this.state;
+		const items = this.items;
+
+		this.gl.scene.fog.density += 0.000001 * state.counter;
+
+		if ( state.counter < state.pressHoldDuration ) {
+			state.timerID = requestAnimationFrame( this.timer );
+			state.counter++;
+		} else {
+			animObj.addEventListener('complete', this.onComplete);
+			animObj.play();
+		}
+	}
+
+	handleStop = () => {
+		animObj.stop();
+	}
+
+	handlePlay() {
+		animObj.play();
+	}
+
 	onDown( e ) {
 		const { x, y } = this.getPos( e );
 		const { flags, on } = this.state;
+		const state = this.state;
 
 		flags.dragging = true;
 		on.x = x;
 		on.y = y;
+
+		e.preventDefault();
+		this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+		this.mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
+
+		raycaster.setFromCamera( this.mouse, this.gl.camera );
+		const intersects = raycaster.intersectObjects( this.planes );
+		let INTERSECTED;
+
+		if ( intersects.length > 0 ) {
+			if ( INTERSECTED != intersects[ 0 ].object ) {
+				INTERSECTED = intersects[ 0 ].object;
+				state.intersected = INTERSECTED.parent.url;
+				state.selectedPost = INTERSECTED.parent.post;
+				state.activeItemIndex = INTERSECTED.parent.uuid;
+				requestAnimationFrame( this.timer );
+			}
+		} else {
+			INTERSECTED = null;
+		}
 	}
 
 	closest() {
@@ -590,23 +679,38 @@ class Slider extends Component {
 		};
 	}
 
-	updateSun(phi, theta) {
+	updateSun( phi, theta ) {
 		// this.gl.light.position.x = this.gl.parameters.distance * Math.cos(phi);
 		// this.gl.light.position.y = this.gl.parameters.distance * Math.sin(phi) * Math.sin(theta);
 		// this.gl.light.position.z = this.gl.parameters.distance * Math.sin(phi) * Math.cos(theta);
-
 		// this.gl.sky.material.uniforms['sunPosition'].value = this.gl.light.position.copy(this.gl.light.position);
 		// this.gl.water.material.uniforms['sunDirection'].value.copy(this.gl.light.position).normalize();
-
 		// this.gl.cubeCamera.update(this.gl.renderer, this.gl.sky);
-
 	}
 
 	onUp() {
 		const state = this.state;
+		const { currentRounded } = this.state;
+		const scene = this.gl.scene;
+		const items = this.items;
 		state.flags.dragging = false;
 		this.clampTarget();
 		state.off = state.target;
+		state.counter = 0;
+		cancelAnimationFrame( state.timerID );
+
+		const start = performance.now();
+		requestAnimationFrame( function animate( time ) {
+			// timeFraction goes from 0 to 1
+			let timeFraction = ( time - start ) / 500;
+			if ( timeFraction > 1 ) timeFraction = 1;
+			scene.fog.density = scene.fog.density - 0.0005 * timeFraction;
+			if ( scene.fog.density < 0.001 ) scene.fog.density = 0.001;
+
+			if ( timeFraction < 1 ) {
+				requestAnimationFrame( animate );
+			}
+		} );
 	}
 
 	onMove( e ) {
@@ -639,6 +743,8 @@ class Slider extends Component {
 
 		return (
 			<React.Fragment>
+				<div className="pagewipe" ref={ref => this.animBox = ref}></div>
+				<div id="slide_canvas"></div>
 				{ error && (
 					<div
 						className="alert alert-danger"
@@ -646,45 +752,64 @@ class Slider extends Component {
 					/>
 				) }
 				{ this._isMounted && posts.length ? (
-					<div
-						className="slider-wrap"
-						// style={ { background: bgColor } }
-					>
-						<div className="slider | js-drag-area">
-							<div
-								className="slider__inner | js-slider"
-								ref={ this.el }
-							>
-								{ posts.map( ( post, index ) => (
-									<div
-										className="slide | js-slide"
-										key={ index }
-										style={ {
-											left: index * 120 + '%',
-										} }
-									>
-										<div className="slide__inner | js-slide__inner">
-											<img
-												className="js-slide__img"
-												src={
-													post.better_featured_image &&
-													post.better_featured_image
-														? post
-															.better_featured_image
-															.source_url
-														: DefaultImg
-												}
-												alt=""
-												crossOrigin="anonymous"
-												draggable="false"
-											/>
+					<React.Fragment>
+						<div
+							className="slider-wrap"
+							// style={ { background: bgColor } }
+						>
+							<div className="slider | js-drag-area">
+								<div
+									className="slider__inner | js-slider"
+									ref={ this.el }
+								>
+									{ posts.map( ( post, index ) => (
+										<div
+											className="slide | js-slide"
+											key={ post.id }
+											data-url={ '/project/' + post.id }
+											style={ {
+												left: index * 120 + '%',
+											} }
+										>
+											<div className="slide__inner | js-slide__inner">
+												<img
+													className="js-slide__img"
+													src={
+														post.better_featured_image &&
+														post.better_featured_image
+															? post
+																.better_featured_image
+																.source_url
+															: DefaultImg
+													}
+													alt=""
+													crossOrigin="anonymous"
+													draggable="false"
+												/>
+											</div>
 										</div>
-									</div>
-								) ) }
+									) ) }
+								</div>
 							</div>
-						</div>
 
-						<div className="titles">
+							<div className="titles">
+								<div className="titles__title titles__title--proxy">
+									Lorem ipsum
+								</div>
+								<div className="titles__list | js-titles">
+									{ posts.map( ( post, index ) => (
+										<div
+											key={ post.id }
+											style={ { color: textColor } }
+											className="titles__title | js-title"
+										>
+											{ post.title.rendered }
+										</div>
+									) ) }
+								</div>
+							</div>
+
+							{ /* <div className="titles faded">
 							<div className="titles__title titles__title--proxy">
 								Lorem ipsum
 							</div>
@@ -699,35 +824,21 @@ class Slider extends Component {
 									</div>
 								) ) }
 							</div>
-						</div>
+						</div> */ }
 
-						{/* <div className="titles faded">
-							<div className="titles__title titles__title--proxy">
-								Lorem ipsum
+							<div className="progress">
+								<div className="progress__line | js-progress-line"></div>
+								<div className="progress__line | js-progress-line-2"></div>
 							</div>
-							<div className="titles__list | js-titles">
-								{ posts.map( ( post, index ) => (
-									<div
-										key={ index }
-										style={ { color: textColor } }
-										className="titles__title | js-title"
-									>
-										{ post.title.rendered }
-									</div>
-								) ) }
-							</div>
-						</div> */}
-
-						<div className="progress">
-							<div className="progress__line | js-progress-line"></div>
-							<div className="progress__line | js-progress-line-2"></div>
 						</div>
-					</div>
+					</React.Fragment>
 				) : (
 					''
 				) }
 				{ loading && (
-					<img className="loader" src={ Spinner } alt="Loader" />
+					<div className="loader-wrap">
+						<img className="loader" src={ Spinner } alt="Loader" />
+					</div>
 				) }
 			</React.Fragment>
 		);

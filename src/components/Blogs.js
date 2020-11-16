@@ -1,15 +1,21 @@
 import React from 'react';
-import Navbar from "./Navbar";
-import { Posts } from "./Posts";
+import { Posts } from './Posts';
+import Content from './content/Content';
 
-const Blogs = () => {
+class Blogs extends React.Component {
+		constructor( props ) {
+		super( props );
+	}
 
-return (
-	<React.Fragment>
-		<Navbar/>
-		<Posts pageId={ 1 } />
-	</React.Fragment>
-)
+	render() {
+		return (
+			<React.Fragment>
+				<Content>
+					<Posts pageId={1} />
+				</Content>
+			</React.Fragment>
+		);
+	}
 };
 
 export default Blogs;

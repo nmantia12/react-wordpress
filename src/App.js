@@ -3,7 +3,7 @@ import Ocean from './3d/Ocean';
 import Globe from './3d/Globe';
 import ModelViewer from './3d/ModelViewer';
 import './style.scss';
-import { Router } from '@reach/router';
+import { Router, Link, Redirect, Location } from '@reach/router';
 import Login from './components/Login';
 import Dashboard from './components/dashboard/Dashboard';
 import Home from './components/Home';
@@ -14,27 +14,27 @@ import Posts from './components/dashboard/posts/Posts';
 import Pages from './components/dashboard/pages/Pages';
 import Blogs from './components/Blogs';
 import Page from './components/Page';
-import Cursor from './components/cursor/Cursor';
+import { AnimatePresence } from 'framer-motion';
+
 
 class App extends React.Component {
-	init() {}
+
 	render() {
 		return (
 			<AppProvider>
-				<Cursor />
-				<Router id="global_router">
+				<Router className="router" id="global_router">
 					<Home path="/" />
 					<Blogs path="/blogs/" />
 					<Page path="/page/:id" />
-					<Login path="/login" />
+					{ /* <Login path="/login" /> */ }
 					<Dashboard path="/dashboard" />
 					<Posts path="/dashboard/posts" />
 					<CreatePost path="/dashboard/create-post" />
 					<Pages path="/dashboard/pages" />
-					<SinglePost path="/portfolio/:id" />
-					<ModelViewer path="/model" />
+					<SinglePost path="/project/:id" />
+					{ /* <ModelViewer path="/model" />
 					<Ocean path="/ocean" />
-					<Globe path="/globe" />
+					<Globe path="/globe" /> */ }
 				</Router>
 			</AppProvider>
 		);

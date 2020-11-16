@@ -1,11 +1,8 @@
 import React from 'react';
-import Navbar from './Navbar';
 import renderHTML from 'react-render-html';
-import Moment from 'react-moment';
-import Loader from '../loader.gif';
-import axios from 'axios';
-import clientConfig from '../client-config';
 import FeaturedImage from './layouts/FeaturedImage';
+import Content from './content/Content';
+import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
 class SinglePost extends React.Component {
 	constructor( props ) {
@@ -13,8 +10,9 @@ class SinglePost extends React.Component {
 
 		this.state = {
 			loading: false,
-			post: {},
+			post: props.location.state.post ? props.location.state.post : {},
 			error: '',
+			appClass: 'card',
 		};
 	}
 
@@ -23,81 +21,47 @@ class SinglePost extends React.Component {
 	} );
 
 	componentDidMount() {
-		const wordPressSiteURL = clientConfig.siteUrl;
-
-		this.setState( { loading: true }, () => {
-			axios
-				.get(
-					`${ wordPressSiteURL }/wp-json/wp/v2/portfolio/${ this.props.id }?_embed`
-				)
-				.then( ( res ) => {
-					if ( Object.keys( res.data ).length ) {
-						this.setState( { loading: false, post: res.data } );
-					} else {
-						this.setState( {
-							loading: false,
-							error: 'No Posts Found',
-						} );
-					}
-				} )
-				.catch( ( err ) =>
-					this.setState( {
-						loading: false,
-						error: err.response.data.message,
-					} )
-				);
-		} );
+		setTimeout( () => {
+			this.setState( { appClass: 'card active' } );
+		}, 50 );
 	}
 
 	render() {
-		const { loading, post, error } = this.state;
+		const { loading, post, error, scale } = this.state;
 
 		return (
 			<React.Fragment>
-				<Navbar />
-				{ error && (
-					<div
-						className="alert alert-danger"
-						dangerouslySetInnerHTML={ this.createMarkup( error ) }
-					/>
-				) }
-				{ Object.keys( post ).length ? (
-					<div className="posts-container">
-						<div
-							key={ post.id }
-							className="card border-dark mb-3"
-							// style={ { maxWidth: '50rem' } }
-						>
-							<div className="card-header">
-								{ /*Featured Image*/ }
-								{ post._embedded[ 'wp:featuredmedia' ] && (
-									<FeaturedImage
-										image={
-											post._embedded[
-												'wp:featuredmedia'
-											][ '0' ]
-										}
-									/>
-								) }
-
-								{ renderHTML( post.title.rendered ) }
+				<TransitionGroup className="page-transition">
+					<CSSTransition classNames="fade" timeout={ 500 }>
+						<Content>
+							<div className="posts-container">
+								<div key={ post.id } className={ this.state.appClass }>
+									<div className="card-header">
+										{ /*Featured Image*/ }
+										{ post._embedded[ 'wp:featuredmedia' ] && (
+											<FeaturedImage
+												image={
+													post._embedded[
+														'wp:featuredmedia'
+													][ '0' ]
+												}
+											/>
+										) }
+									</div>
+								</div>
 							</div>
 							<div className="card-body">
 								<div className="card-text post-content">
+									<h1>{ renderHTML( post.title.rendered ) }</h1>
 									{ renderHTML( post.content.rendered ) }
 								</div>
 							</div>
 							<div className="card-footer">
-								<Moment fromNow>{ post.date }</Moment>
+								{ /* <Moment fromNow>{ post.date }</Moment> */ }
 							</div>
-						</div>
-					</div>
-				) : (
-					''
-				) }
-				{ loading && (
-					<img className="loader" src={ Loader } alt="Loader" />
-				) }
+						</Content>
+					</CSSTransition>
+				</TransitionGroup>
 			</React.Fragment>
 		);
 	}
