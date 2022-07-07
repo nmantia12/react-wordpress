@@ -48,7 +48,7 @@
 		"gsap": "^3.5.1",
 		"jsonwebtoken": "^8.5.1",
 		"lottie-web": "^5.7.4",
-		"moment": "^2.24.0",
+		"moment": "^2.29.4",
 		"node-vibrant": "^3.1.5",
 		"paper": "^0.12.11",
 		"qs": "^6.7.0",
